@@ -23,6 +23,7 @@ from arg_scripts.rl_args import VALID_SPECTRUM_ALGORITHMS, get_optuna_hyperparam
 
 # TODO: No support for core or spectrum assignment
 # TODO: Does not support multi-band
+# TODO: (drl_path_agents) Result verification for 5.1.1, if it's the same as before
 
 class SimEnv(gym.Env):  # pylint: disable=abstract-method
     """

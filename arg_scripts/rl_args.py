@@ -2,8 +2,8 @@
 import optuna
 
 
-# TODO: Support only for path selection for all functions
-# TODO: UCB Bandit 'c' variable is a constant
+# TODO: (drl_path_agents) Support only for path selection for all functions
+# TODO: (drl_path_agents) UCB Bandit 'c' variable is a constant
 def get_optuna_hyperparams(sim_dict: dict, trial: optuna.trial):
     """
     Suggests hyperparameters for the Optuna trial.
@@ -129,7 +129,7 @@ class BanditProps:
         return f"BanditProps({self.__dict__})"
 
 
-# TODO: Add support for DRL agents
+# TODO: (drl_path_agents) Add support for DRL agents
 class PPOProps:
     """
     Not implemented at this time.
@@ -155,7 +155,7 @@ VALID_SPECTRUM_ALGORITHMS = [
     'a2c',
 ]
 
-# TODO: Detect if running on Unity cluster or locally
+# TODO: (drl_path_agents) Detect if running on Unity cluster or locally
 LOCAL_RL_COMMANDS_LIST = [
     # 'rm -rf venvs/unity_venv/venv',
     # 'module load python/3.11.0',
