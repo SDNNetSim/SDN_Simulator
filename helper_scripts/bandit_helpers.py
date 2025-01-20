@@ -56,7 +56,7 @@ def save_model(iteration: int, algorithm: str, self: object):
     """
     max_iters = self.engine_props['max_iters']
     rewards_matrix = self.props.rewards_matrix
-    # TODO: Hard coded to save every 50 iterations, should be in the configuration file
+    # TODO: (drl_path_agents) Hard coded to save every 50 iterations, should be in the configuration file
     if (iteration in (max_iters - 1, (max_iters - 1) % 50)) and \
             (len(self.props.rewards_matrix[iteration]) == self.engine_props['num_requests']):
         rewards_matrix = np.array(rewards_matrix)

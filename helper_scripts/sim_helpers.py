@@ -505,7 +505,7 @@ def get_super_channels(input_arr: np.array, slots_needed: int):
     return np.array(potential_super_channels)
 
 
-# TODO: Add reference
+# TODO: (drl_path_agents) Add reference
 # Please refer to this paper for the formulation:
 def _get_hfrag_score(sc_index_mat: np.array, spectral_slots: int):
     big_n = len(sc_index_mat) * -1.0
@@ -531,7 +531,7 @@ def get_hfrag(path_list: list, core_num: int, band: str, slots_needed: int, spec
     """
     path_alloc_arr = np.zeros(spectral_slots)
     resp_frag_arr = np.ones(spectral_slots)
-    # TODO: First fit for core, only use in testing
+    # TODO: (drl_path_agents) First fit for core, only use in testing
     if core_num is None:
         core_num = 0
 

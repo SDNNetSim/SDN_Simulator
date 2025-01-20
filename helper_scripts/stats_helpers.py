@@ -13,7 +13,7 @@ from helper_scripts.sim_helpers import find_path_len, find_core_cong
 from helper_scripts.os_helpers import create_dir
 
 
-# TODO: Note that many of these dictionaries were converted to objects, this will affect saving/calculating
+# TODO: (drl_path_agents) Note that many of these dictionaries were converted to objects, this will affect saving/calculating
 class SimStats:
     """
     The SimStats class finds and stores all relevant statistics in simulations.
@@ -205,10 +205,10 @@ class SimStats:
 
     def _handle_iter_lists(self, sdn_data: object):
         for stat_key in sdn_data.stat_key_list:
-            # TODO: This name should be changed to 'sdn_data'
+            # TODO: (drl_path_agents) This name should be changed to 'sdn_data'
             curr_sdn_data = sdn_data.get_data(key=stat_key)
             if stat_key == 'xt_list':
-                # fixme
+                # (drl_path_agents) fixme
                 if curr_sdn_data == [None]:
                     break
             for i, data in enumerate(curr_sdn_data):
@@ -348,7 +348,7 @@ class SimStats:
         except ZeroDivisionError:
             return False
 
-        # TODO: Add CI percent to configuration file
+        # TODO: (drl_path_agents) Add CI percent to configuration file
         if block_ci_percent <= 5:
             print(f"Confidence interval of {round(block_ci_percent, 2)}% reached. "
                   f"{self.iteration + 1}, ending and saving results for Erlang: {self.engine_props['erlang']}")
