@@ -111,7 +111,7 @@ class Engine:
         self.net_spec_dict = {}
         self.topology.add_nodes_from(self.engine_props['topology_info']['nodes'])
 
-        # TODO: This list should be stored somewhere else, like an arguments script
+        # TODO: (drl_path_agents) This list should be stored somewhere else, like an arguments script
         self.engine_props['band_list'] = list()
         for band in ['c', 'l', 's', 'o', 'e']:
             try:
@@ -145,7 +145,7 @@ class Engine:
 
         :param seed: The seed to use for the random generation.
         """
-        # TODO: Add a flag for AI simulations which want to have a constant seed
+        # TODO: (drl_path_agent) Add a flag for AI simulations which want to have a constant seed
         self.reqs_dict = get_requests(seed=seed, engine_props=self.engine_props)
         self.reqs_dict = dict(sorted(self.reqs_dict.items()))
 
