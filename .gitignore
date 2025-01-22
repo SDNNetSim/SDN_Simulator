@@ -22,7 +22,6 @@ data/excel
 logs/*
 
 ini/run_ini/*
-!ini/run_ini/config.ini
 bash_scripts/slurm/*
 
 .vscode/
@@ -35,4 +34,3 @@ venvs/unity_venv/venv
 __pycache__/
 
 data/json_input/run_mods/*
-!data/json_input/run_mods/mod_formats.json
