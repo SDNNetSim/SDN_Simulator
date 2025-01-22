@@ -21,8 +21,10 @@ from arg_scripts.rl_args import RLProps, LOCAL_RL_COMMANDS_LIST, VALID_PATH_ALGO
 from arg_scripts.rl_args import VALID_SPECTRUM_ALGORITHMS, get_optuna_hyperparams
 
 
-# TODO: No support for core or spectrum assignment
-# TODO: Does not support multi-band
+# TODO: (drl_path_agents) No support for core or spectrum assignment
+# TODO: (drl_path_agents) Does not support multi-band
+# TODO: (drl_path_agents) Result verification for 5.1.1, if it's the same as before
+# TODO: This should become 2 files most likely...(drl_path_agents)
 
 class SimEnv(gym.Env):  # pylint: disable=abstract-method
     """
@@ -51,7 +53,7 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         self.engine_obj = None
         self.route_obj = None
 
-        # TODO: Change all inputs to account for the new object
+        # TODO: (drl_path_agents) Change all inputs to account for the new object
         self.rl_help_obj = RLHelpers(rl_props=self.rl_props, engine_obj=self.engine_obj, route_obj=self.route_obj)
         self._setup_agents()
 
@@ -188,7 +190,7 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         self._determine_core_penalty()
 
         self.rl_props.forced_index = None
-        # TODO: Check to make sure this doesn't affect anything
+        # TODO: (drl_path_agents) Check to make sure this doesn't affect anything
         # try:
         #     req_info_dict = self.rl_props.arrival_list[self.rl_props.arrival_count]
         # except IndexError:
@@ -200,7 +202,7 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         self.route_obj.sdn_props = self.rl_props.mock_sdn_dict
         self.route_obj.engine_props['route_method'] = 'shortest_path'
         self.route_obj.get_route()
-        # TODO: Change name in rl props
+        # TODO: (drl_path_agents) Change name in rl props
         self.rl_props.paths_list = self.route_obj.route_props.paths_matrix
         self.rl_props.chosen_path = self.route_obj.route_props.paths_matrix
         self.rl_props.path_index = 0
@@ -226,7 +228,7 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
 
         return path_mod
 
-    # fixme
+    # fixme (drl_path_agents)
     def _get_spectrum_obs(self, curr_req: dict):  # pylint: disable=unused-argument
         # path_mod = self._handle_test_train_obs(curr_req=curr_req)
         # if path_mod is not False:
@@ -261,7 +263,7 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         self.rl_props.destination = int(curr_req['destination'])
         self.rl_props.mock_sdn_dict = self.rl_help_obj.update_mock_sdn(curr_req=curr_req)
 
-        # TODO: This is for spectrum assignment, ignored return for now
+        # TODO: (drl_path_agents) This is for spectrum assignment, ignored return for now
         _ = self._handle_test_train_obs(curr_req=curr_req)
         slots_needed, source_obs, dest_obs, super_channels = self._get_spectrum_obs(curr_req=curr_req)
         obs_dict = {
@@ -284,7 +286,7 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
     def _create_input(self):
         base_fp = os.path.join('data')
         self.sim_dict['thread_num'] = 's1'
-        # fixme
+        # fixme (drl_path_agents)
         # Added only for structure consistency
         # time.sleep(20)
         get_start_time(sim_dict={'s1': self.sim_dict})
@@ -294,7 +296,7 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         self.route_obj = Routing(engine_props=self.engine_obj.engine_props,
                                  sdn_props=self.rl_props.mock_sdn_dict)
 
-        # fixme
+        # fixme (drl_path_agents)
         # time.sleep(30)
         self.sim_props = create_input(base_fp=base_fp, engine_props=self.sim_dict)
         self.modified_props = copy.deepcopy(self.sim_props)
@@ -308,7 +310,7 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         save_input(base_fp=base_fp, properties=self.modified_props, file_name=file_name,
                    data_dict=self.modified_props)
 
-    # TODO: Options to have select AI agents
+    # TODO: Options to have select AI agents (drl_path_agents)
     def _load_models(self):
         self.path_agent.engine_props = self.engine_obj.engine_props
         self.path_agent.rl_props = self.rl_props
@@ -327,7 +329,7 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         self.optimize = self.sim_dict['optimize']
         self.rl_props.k_paths = self.sim_dict['k_paths']
         self.rl_props.cores_per_link = self.sim_dict['cores_per_link']
-        # TODO: Only support for 'c' band...Maybe add multi-band
+        # TODO: Only support for 'c' band...Maybe add multi-band (drl_path_agents)
         self.rl_props.spectral_slots = self.sim_dict['c_band']
 
         self._create_input()
@@ -368,7 +370,7 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         self.rl_props.arrival_list = list()
         self.rl_props.depart_list = list()
 
-        # TODO: fixme statement breaks for DRL
+        # TODO: fixme statement breaks for DRL (drl_path_agents)
         if self.optimize is None:
             self.iteration = 0
             self.setup()
@@ -377,7 +379,7 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         if not self.sim_dict['is_training'] and self.iteration == 0:
             self._load_models()
         if seed is None:
-            # fixme
+            # fixme (drl_path_agents)
             # seed = self.iteration + 1
             seed = 0
 
@@ -394,7 +396,7 @@ def _run_iters(env: object, sim_dict: dict, is_training: bool, model=None):
         if is_training:
             obs, _, is_terminated, is_truncated, _ = env.step([0])
         else:
-            # TODO: Implement
+            # TODO: Implement (drl_path_agents)
             action, _states = model.predict(obs)
             # action = [0]
             obs, _, is_terminated, is_truncated, _ = env.step(action)
@@ -432,7 +434,7 @@ def _get_trained_model(env: object, sim_dict: dict):
 
 
 def _run_rl_zoo(sim_dict: dict):
-    # TODO: Detect if working locally or on the cluster
+    # TODO: Detect if working locally or on the cluster (drl_path_agents)
     for command in LOCAL_RL_COMMANDS_LIST:
         subprocess.run(command, shell=True, check=True)
 
@@ -446,7 +448,7 @@ def _run_rl_zoo(sim_dict: dict):
 def _run_testing(env: object, sim_dict: dict):
     model = _get_trained_model(env=env, sim_dict=sim_dict)
     _run_iters(env=env, sim_dict=sim_dict, is_training=False, model=model)
-    # fixme: Hard coded
+    # fixme: Hard coded (drl_path_agents)
     save_fp = os.path.join('logs', 'ppo', env.modified_props['network'], env.modified_props['date'],
                            env.modified_props['sim_start'], 'ppo_model.zip')
     model.save(save_fp)
@@ -479,8 +481,8 @@ def _run(env: object, sim_dict: dict):
         _run_testing(sim_dict=sim_dict, env=env)
 
 
-# fixme: Saves extra input directory
-# fixme: Saves to second traffic volume file (400 to 500)
+# fixme: Saves extra input directory (drl_path_agents)
+# fixme: Saves to second traffic volume file (400 to 500) (drl_path_agents)
 def run_rl_sim():
     """
     The main function that controls reinforcement learning simulations, including hyperparameter optimization.

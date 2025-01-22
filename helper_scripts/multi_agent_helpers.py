@@ -332,7 +332,7 @@ class PathAgent:
         if len(self.rl_props.chosen_path_list) == 0:
             raise ValueError('The chosen path can not be None')
 
-    # TODO: Change q-learning to be like this (agent_obj.something)
+    # TODO: (drl_path_agents) Change q-learning to be like this (agent_obj.something)
     def _bandit_route(self, route_obj: object):
         paths_list = route_obj.route_props.paths_matrix
         source = paths_list[0][0]
@@ -367,7 +367,7 @@ class PathAgent:
             self.agent_obj.props.routes_matrix = np.load(model_path, allow_pickle=True)
 
 
-# TODO: This class is no longer supported
+# TODO: (drl_path_agents) This class is no longer supported
 class CoreAgent:
     """
     A class that handles everything related to core assignment in reinforcement learning simulations.
@@ -527,7 +527,7 @@ class CoreAgent:
             self.agent_obj.props.cores_matrix = np.load(model_path, allow_pickle=True)
 
 
-# TODO: This class is no longer supported
+# TODO: (drl_path_agents) This class is no longer supported
 class SpectrumAgent:
     """
     A class that handles everything related to spectrum assignment in reinforcement learning simulations.

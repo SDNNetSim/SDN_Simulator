@@ -45,7 +45,7 @@ class RLHelpers:
         :return: A matrix of super-channels with their fragmentation score.
         :rtype: list
         """
-        # TODO: The 'c' band used by default
+        # TODO: (drl_path_agents) The 'c' band used by default
         path_list = self.rl_props.chosen_path_list[0]
         sc_index_mat, hfrag_arr = get_hfrag(path_list=path_list, net_spec_dict=self.engine_obj.net_spec_dict,
                                             spectral_slots=self.rl_props.spectral_slots, core_num=self.core_num,
@@ -154,7 +154,7 @@ class RLHelpers:
         else:
             forced_index = None
 
-        # TODO: Fix inconsistency e.g., if route object isn't the same in sdn controller
+        # TODO: (drl_path_agents) Fix inconsistency e.g., if route object isn't the same in sdn controller
         force_mod_format = self.route_obj.route_props.mod_formats_matrix[0]
         self.engine_obj.handle_arrival(curr_time=curr_time, force_route_matrix=self.rl_props.chosen_path_list,
                                        force_core=self.rl_props.core_index,
@@ -172,7 +172,7 @@ class RLHelpers:
         :return: If there are available spectral slots.
         :rtype: bool
         """
-        # TODO: Fix this in RL merge
+        # TODO: (drl_path_agents) Fix this in RL merge
         route_props = None
         spectrum_obj = SpectrumAssignment(engine_props=engine_props, sdn_props=sdn_props, route_props=route_props)
 

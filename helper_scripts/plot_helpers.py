@@ -24,7 +24,7 @@ class PlotHelpers:  # pylint: disable=too-few-public-methods
         self.sim_num = None
         self.data_dict = None
 
-    # TODO: This function is only partially functional for q-learning
+    # TODO: (drl_path_agents) This function is only partially functional for q-learning
     def _find_ai_stats(self, cores_per_link: int):
         # TODO: Generalize
         # TODO: Save the date of a simulation
@@ -101,7 +101,7 @@ class PlotHelpers:  # pylint: disable=too-few-public-methods
                 modulations_dict[bandwidth].setdefault(modulation, []).append(mean(mod_usages))
 
     def _find_sim_info(self, input_dict: dict):
-        # TODO: Does not support all bands/slots
+        # TODO: (drl_path_agents) Does not support all bands/slots
         info_item_list = ['holding_time', 'cores_per_link', 'c_band', 'network', 'num_requests',
                           'cores_per_link', 'max_segments']
         self.plot_props = self.plot_props.plot_dict[self.time][self.sim_num].update_info_dict(
