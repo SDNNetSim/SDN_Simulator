@@ -31,6 +31,54 @@ def get_path_mod(mods_dict: dict, path_len: int):
     return resp
 
 
+def get_path_mod_fixedgrid(mods_dict: dict, path_len: int):
+    """
+    Choose a modulation format that will allocate a network request.
+
+    :param mods_dict: Information for maximum reach for each modulation format.
+    :param path_len: The length of the path to be taken.
+    :return: The chosen modulation format.
+    :rtype: str
+    """
+    # TODO: generalize it
+    if mods_dict['64-QAM']['max_length'] >= path_len:
+        resp = '64-QAM'
+    elif mods_dict['32-QAM']['max_length'] >= path_len:
+        resp = '32-QAM'
+    elif mods_dict['16-QAM']['max_length'] >= path_len:
+        resp = '16-QAM'
+    elif mods_dict['8-QAM']['max_length'] >= path_len:
+        resp = '8-QAM'
+    elif mods_dict['QPSK']['max_length'] >= path_len:
+        resp = 'QPSK'
+    elif mods_dict['BPSK']['max_length'] >= path_len:
+        resp = 'BPSK'
+    else:
+        return False
+
+    return resp
+
+
+def get_path_mod_fixedgrid_slicing(mods_dict: dict, bw_mapping_dict: dict, path_len: int):
+    """
+    Choose a modulation format that will allocate a network request.
+
+    :param mods_dict: Information for maximum reach for each modulation format.
+    :param path_len: The length of the path to be taken.
+    :return: The chosen modulation format.
+    :rtype: str
+    """
+    # Pycharm auto-formats it like this for comparisons...I'd rather this look weird than look at PyCharm warnings
+    sorted_dict = {k: mods_dict[k] for k in sorted(mods_dict.keys(), reverse=True)}
+    for bw in sorted_dict:
+        mod = next((key for key, value in bw_mapping_dict.items() if value == int(bw)), None)
+        if sorted_dict[bw][mod]['max_length'] >= path_len:
+            return (mod, int(bw))
+    
+    return False, 0
+
+
+
 def find_max_path_len(source: int, destination: int, topology: nx.Graph):
     """
     Find the maximum path length possible of a path in the network.
