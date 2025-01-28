@@ -5,7 +5,7 @@ import numpy as np
 
 from arg_scripts.routing_args import RoutingProps
 from helper_scripts.routing_helpers import RoutingHelpers
-from helper_scripts.sim_helpers import find_path_len, get_path_mod, find_free_slots, sort_nested_dict_vals
+from helper_scripts.sim_helpers import find_path_len, get_path_mod, find_free_slots, sort_nested_dict_vals, get_path_mod_fixedgrid
 
 
 class Routing:
@@ -120,7 +120,7 @@ class Routing:
             path_len = find_path_len(path_list=path_list, topology=self.engine_props['topology'])
             chosen_bw = self.sdn_props.bandwidth
             if not self.engine_props['pre_calc_mod_selection']:
-                mod_formats_list = [
+                mod_formats_list = [get_path_mod_fixedgrid(mods_dict=self.engine_props['mod_per_bw'][chosen_bw], path_len=path_len) if self.engine_props['fixed_grid'] else
                     get_path_mod(mods_dict=self.engine_props['mod_per_bw'][chosen_bw], path_len=path_len)]
             else:
                 mod_formats_dict = sort_nested_dict_vals(original_dict=self.sdn_props.mod_formats_dict,
