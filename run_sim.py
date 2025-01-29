@@ -46,10 +46,11 @@ class NetworkSimulator:
         Other assumptions include Yue's. Reference: Wang, Yue. Dynamic Traffic Scheduling
         Frameworks with Spectral and Spatial Flexibility in Sdm-Eons. Diss. University of Massachusetts Lowell, 2022.
         """
-        erlang_dict = self.properties['erlangs']
-        start, stop, step = erlang_dict['start'], erlang_dict['stop'], erlang_dict['step']
+        start, stop = self.properties['erlang_start'], self.properties['erlang_stop']
+        step = self.properties['erlang_step']
         erlang_list = [float(erlang) for erlang in range(start, stop, step)]
 
+        # TODO: (drl_path_agents) I'm thinking we can export this function to be used multiple times
         if self.properties['thread_erlangs']:
             with concurrent.futures.ProcessPoolExecutor() as executor:
                 futures_list = []

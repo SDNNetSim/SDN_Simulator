@@ -14,10 +14,12 @@ def str_to_bool(string: str):
 
 SIM_REQUIRED_OPTIONS = {
     'general_settings': {
+        'erlang_start': int,
+        'erlang_stop': int,
+        'erlang_step': int,
         'mod_assumption': str,
         'mod_assumption_path': str,
         'holding_time': float,
-        'erlangs': ast.literal_eval,
         'thread_erlangs': str_to_bool,
         'guard_slots': int,
         'num_requests': int,
@@ -106,7 +108,7 @@ OTHER_OPTIONS = {
         'alpha_update': str,
         'alpha_start': float,
         'alpha_end': float,
-        'discount_factor': float,
+        'gamma': float,
         'epsilon_update': str,
         'epsilon_start': float,
         'epsilon_end': float,
@@ -131,13 +133,16 @@ OTHER_OPTIONS = {
 }
 
 COMMAND_LINE_PARAMS = [
+    ['erlang_start', float, ''],
+    ['erlang_stop', float, ''],
+    ['erlang_step', float, ''],
     ['mod_assumption', str, ''],
     ['n_trials', str, ''],
     ['mod_assumption_path', str, ''],
     ['epsilon_start', float, ''],
     ['epsilon_end', float, ''],
     ['learn_rate', float, ''],
-    ['discount_factor', float, ''],
+    ['gamma', float, ''],
     ['is_training', bool, ''],
     ['seeds', list, ''],
     ['beta', float, ''],
@@ -152,7 +157,6 @@ COMMAND_LINE_PARAMS = [
     ['k_paths', int, ''],
     ['network', str, ''],
     ['holding_time', float, ''],
-    ['erlangs', dict, ''],
     ['thread_erlangs', bool, ''],
     ['num_requests', int, ''],
     ['max_iters', int, ''],
@@ -198,7 +202,6 @@ COMMAND_LINE_PARAMS = [
     ['deploy_model', bool, ''],
     ['path_levels', int, ''],
     ['core_beta', float, ''],
-    ['gamma', float, ''],
     ['decay_factor', float, ''],
     ['dynamic_reward', bool, ''],
     ['config_path', str, ''],

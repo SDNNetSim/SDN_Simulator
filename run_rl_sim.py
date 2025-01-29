@@ -335,13 +335,18 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         self._create_input()
 
         self.sim_dict['arrival_dict'] = {
-            'start': self.sim_dict['arrival_start'],
-            'stop': self.sim_dict['arrival_stop'],
-            'step': self.sim_dict['arrival_step'],
+            'start': self.sim_dict['erlang_start'],
+            'stop': self.sim_dict['erlang_stop'],
+            'step': self.sim_dict['erlang_step'],
         }
-        start_arr_rate = float(self.sim_dict['arrival_start'])
-        self.engine_obj.engine_props['erlang'] = start_arr_rate / self.sim_dict['holding_time']
-        self.engine_obj.engine_props['arrival_rate'] = start_arr_rate * self.sim_dict['cores_per_link']
+
+        self.engine_obj.engine_props['erlang'] = float(self.sim_dict['erlang_start'])
+        cores_per_link = self.engine_obj.engine_props['cores_per_link']
+        erlang = self.engine_obj.engine_props['erlang']
+        holding_time = self.engine_obj.engine_props['holding_time']
+        self.engine_obj.engine_props['arrival_rate'] = (cores_per_link * erlang) / holding_time
+
+        self.engine_obj.engine_props['band_list'] = ['c']
 
     def _init_props_envs(self):
         self.rl_props.arrival_count = 0

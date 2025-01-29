@@ -103,8 +103,8 @@ class QLearningHelpers:
         max_future_q = self.get_max_future_q(path_list=routes_matrix[self.rl_props.chosen_path_index][0][0],
                                              net_spec_dict=net_spec_dict, matrix=routes_matrix, flag='path')
 
-        delta = reward + self.engine_props['discount_factor'] * max_future_q
-        td_error = current_q - (reward + self.engine_props['discount_factor'] * max_future_q)
+        delta = reward + self.engine_props['gamma'] * max_future_q
+        td_error = current_q - (reward + self.engine_props['gamma'] * max_future_q)
         self.update_q_stats(reward=reward, stats_flag='routes_dict', td_error=td_error)
         new_q = ((1.0 - self.learn_rate) * current_q) + (self.learn_rate * delta)
 
@@ -128,8 +128,8 @@ class QLearningHelpers:
         max_future_q = self.get_max_future_q(path_list=cores_list['path'], net_spec_dict=net_spec_dict,
                                              matrix=cores_matrix, flag='core', core_index=core_index)
 
-        delta = reward + self.engine_props['discount_factor'] * max_future_q
-        td_error = current_q - (reward + self.engine_props['discount_factor'] * max_future_q)
+        delta = reward + self.engine_props['gamma'] * max_future_q
+        td_error = current_q - (reward + self.engine_props['gamma'] * max_future_q)
         self.update_q_stats(reward=reward, stats_flag='cores_dict', td_error=td_error)
         new_q = ((1.0 - self.learn_rate) * current_q) + (self.learn_rate * delta)
 
