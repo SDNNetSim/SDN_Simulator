@@ -130,9 +130,11 @@ class ActionHelpers:
             print(settings_dialog.get_settings())
 
     def _display_topology(self, net_name: str):
-        topology_information_dict = create_network(net_name=net_name)
+        # The new create network structure returns a tuple, we just care about the dictionary
+        topology_information_dict = create_network(net_name=net_name)[0]
 
-        edge_list = [(src, des, {'weight': link_len}) for (src, des), link_len in topology_information_dict.items()] # pylint: disable=no-member
+        edge_list = [(src, des, {'weight': link_len}) for (src, des), link_len in
+                     topology_information_dict.items()]  # pylint: disable=no-member
         network_topo = nx.Graph(edge_list)
 
         pos = nx.spring_layout(network_topo, seed=5, scale=2.0)  # Adjust the scale as needed

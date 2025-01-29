@@ -17,11 +17,11 @@ class MenuHelpers:
 
     def open_file(self):
         """
-        Opens a json or yaml file.
+        Opens a json, yaml, or ini file.
         """
         # Set the file dialog to filter for .yml and .json files only
         file_name, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self.menu_bar_obj, "Open Configuration File", "", "Config Files (*.yml *.json)"
+            self.menu_bar_obj, "Open Configuration File", "", "Config Files (*.yml *.json *.ini)"
         )
         if file_name:
             print(f"Selected file: {file_name}")

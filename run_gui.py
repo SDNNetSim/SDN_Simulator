@@ -134,6 +134,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Bottom pane for simulation output
         self.bottom_pane = QPlainTextEdit(self)
+
+        self.bottom_pane.setCursor(QtCore.Qt.ArrowCursor)  # Uses the pointer cursor
+        self.bottom_pane.viewport().setCursor(QtCore.Qt.ArrowCursor)
+
         self.bottom_pane.setReadOnly(True)
         self.bottom_pane.setMinimumHeight(150)
         self.vertical_splitter.addWidget(self.bottom_pane)
