@@ -7,8 +7,8 @@ import shutil
 
 import numpy as np
 
-from helper_scripts.bandit_helpers import load_model, _get_base_fp, _save_model, save_model, EpsilonGreedyBandit
-from helper_scripts.bandit_helpers import UCBBandit
+from helper_scripts.rl.bandit_helpers import load_model, _get_base_fp, _save_model, save_model, EpsilonGreedyBandit
+from helper_scripts.rl.bandit_helpers import UCBBandit
 
 
 class TestBanditHelpers(unittest.TestCase):

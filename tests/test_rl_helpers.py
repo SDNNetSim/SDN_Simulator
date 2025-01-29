@@ -3,7 +3,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 import numpy as np
-from helper_scripts.rl_helpers import RLHelpers
+from helper_scripts.rl.rl_helpers import RLHelpers
 
 
 class TestRLHelpers(unittest.TestCase):

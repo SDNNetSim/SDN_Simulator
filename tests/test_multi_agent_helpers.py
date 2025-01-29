@@ -3,7 +3,7 @@
 import unittest
 
 from unittest.mock import MagicMock, patch
-from helper_scripts.multi_agent_helpers import PathAgent, CoreAgent, HyperparamConfig
+from helper_scripts.rl.multi_agent_helpers import PathAgent, CoreAgent, HyperparamConfig
 
 
 class TestPathAgent(unittest.TestCase):

@@ -3,7 +3,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 import numpy as np
 import networkx as nx
-from helper_scripts.ql_helpers import QLearningHelpers
+from helper_scripts.rl.ql_helpers import QLearningHelpers
 
 
 class TestQLearningHelpers(unittest.TestCase):
