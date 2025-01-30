@@ -1,12 +1,11 @@
-import os
-
 import gymnasium as gym
 
+from helper_scripts.rl.rl_env_utils import SimEnvRLStepHelper
 from helper_scripts.rl.rl_setup_helpers import setup_rl_sim, RLSetupHelper
 from helper_scripts.rl.rl_helpers import CoreUtilHelpers, SimEnvHelpers
 from helper_scripts.rl.multi_agent_helpers import PathAgent, CoreAgent, SpectrumAgent
 
-from arg_scripts.rl_args import RLProps, VALID_PATH_ALGORITHMS, VALID_CORE_ALGORITHMS
+from arg_scripts.rl_args import RLProps
 
 
 class SimEnv(gym.Env):  # pylint: disable=abstract-method
@@ -45,6 +44,7 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         self.sim_props = None
         self.setup_helper = RLSetupHelper(sim_env=self)
         self.sim_env_helper = SimEnvHelpers(sim_env=self)
+        self.step_helper = SimEnvRLStepHelper(sim_env=self)
 
         # Used to get config variables into the observation space
         self.reset(options={'save_sim': False})
@@ -58,38 +58,6 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
                                     rl_help_obj=self.rl_help_obj)
         self.spectrum_agent = SpectrumAgent(spectrum_algorithm=self.sim_dict['spectrum_algorithm'],
                                             rl_props=self.rl_props)
-
-    def _check_terminated(self):
-        if self.rl_props.arrival_count == (self.engine_obj.engine_props['num_requests']):
-            terminated = True
-            base_fp = os.path.join('data')
-            # The spectrum agent is handled by SB3 automatically
-            if self.sim_dict['path_algorithm'] in VALID_PATH_ALGORITHMS and self.sim_dict['is_training']:
-                self.path_agent.end_iter()
-            elif self.sim_dict['core_algorithm'] in VALID_CORE_ALGORITHMS and self.sim_dict['is_training']:
-                self.core_agent.end_iter()
-            self.engine_obj.end_iter(iteration=self.iteration, print_flag=False, base_fp=base_fp)
-            self.iteration += 1
-        else:
-            terminated = False
-
-        return terminated
-
-    def _handle_test_train_step(self, was_allocated: bool, path_length: int):
-        if self.sim_dict['is_training']:
-            if self.sim_dict['path_algorithm'] in VALID_PATH_ALGORITHMS:
-                self.path_agent.update(was_allocated=was_allocated, net_spec_dict=self.engine_obj.net_spec_dict,
-                                       iteration=self.iteration, path_length=path_length)
-            elif self.sim_dict['core_algorithm'] in VALID_CORE_ALGORITHMS:
-                self.core_agent.update(was_allocated=was_allocated, net_spec_dict=self.engine_obj.net_spec_dict,
-                                       iteration=self.iteration)
-            else:
-                raise NotImplementedError
-        else:
-            self.path_agent.update(was_allocated=was_allocated, net_spec_dict=self.engine_obj.net_spec_dict,
-                                   iteration=self.iteration, path_length=path_length)
-            self.core_agent.update(was_allocated=was_allocated, net_spec_dict=self.engine_obj.net_spec_dict,
-                                   iteration=self.iteration)
 
     def step(self, action: list):
         """
@@ -109,13 +77,13 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
 
         was_allocated = req_id in reqs_status_dict
         path_length = self.route_obj.route_props.weights_list[0]
-        self._handle_test_train_step(was_allocated=was_allocated, path_length=path_length)
+        self.step_helper.handle_test_train_step(was_allocated=was_allocated, path_length=path_length)
         self.rl_help_obj.update_snapshots()
         drl_reward = self.spectrum_agent.get_reward(was_allocated=was_allocated)
 
         self.rl_props.arrival_count += 1
-        terminated = self._check_terminated()
-        new_obs = self._get_obs()
+        terminated = self.step_helper.check_terminated()
+        new_obs = self.step_helper.get_obs()
         truncated = False
         info = self._get_info()
 
@@ -124,67 +92,6 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
     @staticmethod
     def _get_info():
         return dict()
-
-    def _handle_path_train_test(self):
-        if 'bandit' in self.sim_dict['path_algorithm']:
-            self.route_obj.sdn_props = self.rl_props.mock_sdn_dict
-            self.route_obj.engine_props['route_method'] = 'k_shortest_path'
-            self.route_obj.get_route()
-
-        self.path_agent.get_route(route_obj=self.route_obj)
-        self.rl_help_obj.rl_props.chosen_path_list = [self.rl_props.chosen_path_list]
-        self.route_obj.route_props.paths_matrix = self.rl_help_obj.rl_props.chosen_path_list
-        self.rl_props.core_index = None
-        self.rl_props.forced_index = None
-
-    def _handle_core_train(self):
-        self.route_obj.sdn_props = self.rl_props.mock_sdn_dict
-        self.route_obj.engine_props['route_method'] = 'k_shortest_path'
-        self.route_obj.get_route()
-        self.sim_env_helper.determine_core_penalty()
-
-        self.rl_props.forced_index = None
-        # TODO: (drl_path_agents) Check to make sure this doesn't affect anything
-        # try:
-        #     req_info_dict = self.rl_props.arrival_list[self.rl_props.arrival_count]
-        # except IndexError:
-        #     req_info_dict = self.rl_props.arrival_list[self.rl_props.arrival_count - 1]
-
-        self.core_agent.get_core()
-
-    def _handle_spectrum_train(self):
-        self.route_obj.sdn_props = self.rl_props.mock_sdn_dict
-        self.route_obj.engine_props['route_method'] = 'shortest_path'
-        self.route_obj.get_route()
-        # TODO: (drl_path_agents) Change name in rl props
-        self.rl_props.paths_list = self.route_obj.route_props.paths_matrix
-        self.rl_props.chosen_path = self.route_obj.route_props.paths_matrix
-        self.rl_props.path_index = 0
-        self.rl_props.core_index = None
-
-    def _get_obs(self):
-        # Used when we reach a reset after a simulation has finished (reset automatically called by gymnasium, use
-        # placeholder variable)
-        if self.rl_props.arrival_count == self.engine_obj.engine_props['num_requests']:
-            curr_req = self.rl_props.arrival_list[self.rl_props.arrival_count - 1]
-        else:
-            curr_req = self.rl_props.arrival_list[self.rl_props.arrival_count]
-
-        self.rl_help_obj.handle_releases()
-        self.rl_props.source = int(curr_req['source'])
-        self.rl_props.destination = int(curr_req['destination'])
-        self.rl_props.mock_sdn_dict = self.rl_help_obj.update_mock_sdn(curr_req=curr_req)
-
-        # TODO: (drl_path_agents) This is for spectrum assignment, ignored return for now
-        _ = self.sim_env_helper.handle_test_train_obs(curr_req=curr_req)
-        slots_needed, source_obs, dest_obs, super_channels = self.sim_env_helper.get_spectrum_obs(curr_req=curr_req)
-        obs_dict = {
-            'slots_needed': slots_needed,
-            'source': source_obs,
-            'destination': dest_obs,
-            'super_channels': super_channels,
-        }
-        return obs_dict
 
     def _init_envs(self):
         self.setup_helper.init_envs()
@@ -260,6 +167,6 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
             seed = self.iteration + 1
 
         self.rl_help_obj.reset_reqs_dict(seed=seed)
-        obs = self._get_obs()
+        obs = self.step_helper.get_obs()
         info = self._get_info()
         return obs, info

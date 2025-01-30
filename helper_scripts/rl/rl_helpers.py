@@ -310,18 +310,17 @@ class SimEnvHelpers:
         Returns:
             Path modulation format, if available.
         """
-        # TODO: (drl_path_agents) These will move to another file
         if self.sim_env.sim_dict['is_training']:
             if self.sim_env.sim_dict['path_algorithm'] in VALID_PATH_ALGORITHMS:
-                self.sim_env._handle_path_train_test()
+                self.sim_env.step_helper.handle_path_train_test()
             elif self.sim_env.sim_dict['core_algorithm'] in VALID_CORE_ALGORITHMS:
-                self.sim_env._handle_core_train()
+                self.sim_env.step_helper.handle_core_train()
             elif self.sim_env.sim_dict['spectrum_algorithm'] not in ('first_fit', 'best_fit', 'last_fit'):
-                self.sim_env._handle_spectrum_train()
+                self.sim_env.step_helper.handle_spectrum_train()
             else:
                 raise NotImplementedError
         else:
-            self.sim_env._handle_path_train_test()
+            self.sim_env.step_helpers.handle_path_train_test()
             self.sim_env.core_agent.get_core()
 
         path_len = find_path_len(path_list=self.sim_env.rl_props.chosen_path_list[0],
