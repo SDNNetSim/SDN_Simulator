@@ -9,7 +9,6 @@ from arg_scripts.rl_args import VALID_PATH_ALGORITHMS, VALID_CORE_ALGORITHMS
 from arg_scripts.sdn_args import SDNProps
 
 
-# TODO: (drl_path_agents) Name changed
 class CoreUtilHelpers:
     """
     Contains methods to assist with reinforcement learning simulations.

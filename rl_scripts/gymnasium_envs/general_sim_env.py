@@ -1,9 +1,9 @@
 import gymnasium as gym
 
-from helper_scripts.rl.env_utils import SimEnvRLStepHelper
-from helper_scripts.rl.setup_helpers import setup_rl_sim, RLSetupHelper
-from helper_scripts.rl.rl_general_helpers import CoreUtilHelpers, SimEnvHelpers
-from helper_scripts.rl.multi_agent_helpers import PathAgent, CoreAgent, SpectrumAgent
+from rl_scripts.util_scripts.env_util import SimEnvUtils
+from rl_scripts.helper_scripts.setup_helpers import setup_rl_sim, SetupHelper
+from rl_scripts.helper_scripts.general_helpers import CoreUtilHelpers, SimEnvHelpers
+from rl_scripts.helper_scripts.multi_agent_helpers import PathAgent, CoreAgent, SpectrumAgent
 
 from arg_scripts.rl_args import RLProps
 
@@ -40,9 +40,9 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
 
         self.modified_props = None
         self.sim_props = None
-        self.setup_helper = RLSetupHelper(sim_env=self)
+        self.setup_helper = SetupHelper(sim_env=self)
         self.sim_env_helper = SimEnvHelpers(sim_env=self)
-        self.step_helper = SimEnvRLStepHelper(sim_env=self)
+        self.step_helper = SimEnvUtils(sim_env=self)
 
         # Used to get config variables into the observation space
         self.reset(options={'save_sim': False})

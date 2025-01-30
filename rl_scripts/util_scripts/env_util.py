@@ -3,7 +3,7 @@ import os
 from arg_scripts.rl_args import VALID_PATH_ALGORITHMS, VALID_CORE_ALGORITHMS
 
 
-class SimEnvRLStepHelper:
+class SimEnvUtils:
     """
     Provides helper methods for managing steps, training/testing logic, and observations
     in the SimEnv reinforcement learning environment.

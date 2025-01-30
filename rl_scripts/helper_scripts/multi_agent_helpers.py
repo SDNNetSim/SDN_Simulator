@@ -3,9 +3,8 @@ import os
 import numpy as np
 from gymnasium import spaces
 
-from helper_scripts.rl.ql_helpers import QLearningHelpers
-from helper_scripts.rl.bandit_helpers import EpsilonGreedyBandit
-from helper_scripts.rl.bandit_helpers import UCBBandit, get_q_table
+from rl_scripts.helper_scripts.ql_helpers import QLearningHelpers
+from rl_scripts.helper_scripts.bandit_helpers import EpsilonGreedyBandit, UCBBandit, get_q_table
 
 EPISODIC_STRATEGIES = ['exp_decay', 'linear_decay']
 

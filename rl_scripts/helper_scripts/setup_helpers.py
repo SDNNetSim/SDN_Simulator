@@ -75,7 +75,7 @@ def setup_ppo(env: object, device: str):
     return model
 
 
-class RLSetupHelper:
+class SetupHelper:
     """
     A helper class to handle setup-related tasks for the SimEnv environment.
     """
