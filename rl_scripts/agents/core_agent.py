@@ -2,7 +2,7 @@ import os
 
 import numpy as np
 
-from rl_scripts.algorithms.q_learning import QLearningHelpers
+from rl_scripts.algorithms.q_learning import QLearning
 from rl_scripts.algorithms.bandits import EpsilonGreedyBandit, UCBBandit
 
 
@@ -35,7 +35,7 @@ class CoreAgent:
         Sets up the environment for the core agent.
         """
         if self.core_algorithm == 'q_learning':
-            self.agent_obj = QLearningHelpers(rl_props=self.rl_props, engine_props=self.engine_props)
+            self.agent_obj = QLearning(rl_props=self.rl_props, engine_props=self.engine_props)
         elif self.core_algorithm == 'epsilon_greedy_bandit':
             self.agent_obj = EpsilonGreedyBandit(rl_props=self.rl_props, engine_props=self.engine_props, is_path=False)
         elif self.core_algorithm == 'ucb_bandit':

@@ -1,7 +1,7 @@
 from rl_scripts.gymnasium_envs.general_sim_env import SimEnv
 
-from rl_scripts.helper_scripts.setup_helpers import setup_rl_sim
-from rl_scripts.helper_scripts.callback_helpers import GetModelParams
+from rl_scripts.helpers.setup_helpers import setup_rl_sim
+from rl_scripts.helpers.callback_helpers import GetModelParams
 
 
 def create_environment():

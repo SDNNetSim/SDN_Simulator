@@ -4,8 +4,8 @@ import optuna
 
 from helper_scripts.sim_helpers import modify_multiple_json_values
 from helper_scripts.sim_helpers import get_arrival_rates, run_simulation_for_arrival_rates, save_study_results
-from rl_scripts.helper_scripts.rl_zoo_helpers import run_rl_zoo
-from rl_scripts.helper_scripts.setup_helpers import print_info
+from rl_scripts.helpers.rl_zoo_helpers import run_rl_zoo
+from rl_scripts.helpers.setup_helpers import print_info
 from rl_scripts.model_manager import get_trained_model, get_model
 
 from arg_scripts.rl_args import get_optuna_hyperparams

@@ -1,6 +1,8 @@
 import os
 import numpy as np
 
+from rl_scripts.helpers.hyperparam_helpers import HyperparamConfig
+
 from rl_scripts.algorithms.q_learning import QLearning
 from rl_scripts.algorithms.bandits import EpsilonGreedyBandit, UCBBandit
 
@@ -17,24 +19,28 @@ class BaseAgent:
         self.algorithm = algorithm
         self.rl_props = rl_props
         self.rl_help_obj = rl_help_obj
-        self.agent_obj = None
+        self.algorithm_obj = None
         self.engine_props = None
+
+        self.reward_penalty_list = None
+        self.hyperparam_obj = None
 
     def setup_env(self, is_path: bool):
         """
         Sets up the environment for both core or path agents, depending on the algorithm.
         """
+        self.reward_penalty_list = np.zeros(self.engine_props['max_iters'])
+        self.hyperparam_obj = HyperparamConfig(engine_props=self.engine_props, rl_props=self.rl_props, is_path=True)
+
         if self.algorithm == 'q_learning':
-            self.agent_obj = QLearning(rl_props=self.rl_props, engine_props=self.engine_props)
+            self.algorithm_obj = QLearning(rl_props=self.rl_props, engine_props=self.engine_props)
         elif self.algorithm == 'epsilon_greedy_bandit':
-            self.agent_obj = EpsilonGreedyBandit(rl_props=self.rl_props, engine_props=self.engine_props,
-                                                 is_path=is_path)
+            self.algorithm_obj = EpsilonGreedyBandit(rl_props=self.rl_props, engine_props=self.engine_props,
+                                                     is_path=is_path)
         elif self.algorithm == 'ucb_bandit':
-            self.agent_obj = UCBBandit(rl_props=self.rl_props, engine_props=self.engine_props, is_path=is_path)
+            self.algorithm_obj = UCBBandit(rl_props=self.rl_props, engine_props=self.engine_props, is_path=is_path)
         else:
             raise NotImplementedError
-
-        self.agent_obj.setup_env()
 
     def calculate_dynamic_penalty(self, core_index: float, req_id: float) -> float:
         """
@@ -75,4 +81,4 @@ class BaseAgent:
             # Assumes similar directory logic
             model_path = os.path.join('logs', model_path,
                                       f"{file_prefix}_e{kwargs['erlang']}_c{kwargs['num_cores']}.npy")
-            self.agent_obj.props.cores_matrix = np.load(model_path, allow_pickle=True)
+            self.algorithm_obj.props.cores_matrix = np.load(model_path, allow_pickle=True)

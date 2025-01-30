@@ -1,9 +1,11 @@
 import gymnasium as gym
 
-from rl_scripts.util_scripts.env_util import SimEnvUtils
-from rl_scripts.helper_scripts.setup_helpers import setup_rl_sim, SetupHelper
-from rl_scripts.helper_scripts.general_helpers import CoreUtilHelpers, SimEnvHelpers
-from rl_scripts.algorithms import PathAgent, CoreAgent, SpectrumAgent
+from rl_scripts.utils.env_util import SimEnvUtils
+from rl_scripts.helpers.setup_helpers import setup_rl_sim, SetupHelper
+from rl_scripts.helpers.general_helpers import CoreUtilHelpers, SimEnvHelpers
+from rl_scripts.agents.path_agent import PathAgent
+from rl_scripts.agents.core_agent import CoreAgent
+from rl_scripts.agents.spectrum_agent import SpectrumAgent
 
 from arg_scripts.rl_args import RLProps
 

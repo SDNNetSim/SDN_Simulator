@@ -1,5 +1,5 @@
 from rl_scripts.workflow_runner import run_optuna_study, run
-from rl_scripts.util_scripts.gym_env_util import create_environment
+from rl_scripts.utils.gym_env_util import create_environment
 
 
 # TODO: (drl_path_agents) Put 'utils' file ending (imports) in the standards and guidelines

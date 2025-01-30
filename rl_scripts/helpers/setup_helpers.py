@@ -115,10 +115,10 @@ class SetupHelper:
         # Environment initialization logic (from the original _init_envs method)
         if self.sim_env.sim_dict['path_algorithm'] in VALID_PATH_ALGORITHMS and self.sim_env.sim_dict['is_training']:
             self.sim_env.path_agent.engine_props = self.sim_env.engine_obj.engine_props
-            self.sim_env.path_agent.setup_env()
+            self.sim_env.path_agent.setup_env(is_path=True)
         elif self.sim_env.sim_dict['core_algorithm'] in VALID_CORE_ALGORITHMS and self.sim_env.sim_dict['is_training']:
             self.sim_env.core_agent.engine_props = self.sim_env.engine_obj.engine_props
-            self.sim_env.core_agent.setup_env()
+            self.sim_env.core_agent.setup_env(is_path=False)
 
     # TODO: Options to have select AI agents (drl_path_agents)
     def load_models(self):

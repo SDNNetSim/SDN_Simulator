@@ -2,7 +2,7 @@ import os
 
 from stable_baselines3 import PPO
 
-from rl_scripts.helper_scripts.setup_helpers import setup_ppo
+from rl_scripts.helpers.setup_helpers import setup_ppo
 
 
 def get_model(algorithm: str, device: str, env: object):
