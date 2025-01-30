@@ -1,10 +1,18 @@
 import os
+import copy
 
 from stable_baselines3 import PPO
 
+from src.engine import Engine
+from src.routing import Routing
+
+from helper_scripts.setup_helpers import create_input, save_input
 from helper_scripts.sim_helpers import parse_yaml_file
+from helper_scripts.sim_helpers import get_start_time
+
 from config_scripts.parse_args import parse_args
 from config_scripts.setup_config import read_config
+
 from arg_scripts.rl_args import VALID_PATH_ALGORITHMS, VALID_CORE_ALGORITHMS, VALID_SPECTRUM_ALGORITHMS
 
 
@@ -66,3 +74,71 @@ def setup_ppo(env: object, device: str):
                 policy_kwargs=kwargs_dict)
 
     return model
+
+
+class RLSetupHelper:
+    """
+    A helper class to handle setup-related tasks for the SimEnv environment.
+    """
+
+    def __init__(self, sim_env: object):
+        """
+        Constructor for RLSetupHelper.
+
+        :param sim_env: Reference to the parent SimEnv instance, to update relevant attributes directly.
+        """
+        self.sim_env = sim_env
+
+    def create_input(self):
+        """
+        Creates input for RL agents based on the simulation configuration.
+        """
+        base_fp = os.path.join('data')
+        self.sim_env.sim_dict['thread_num'] = 's1'
+
+        get_start_time(sim_dict={'s1': self.sim_env.sim_dict})
+        file_name = "sim_input_s1.json"
+
+        self.sim_env.engine_obj = Engine(engine_props=self.sim_env.sim_dict)
+        self.sim_env.route_obj = Routing(engine_props=self.sim_env.engine_obj.engine_props,
+                                         sdn_props=self.sim_env.rl_props.mock_sdn_dict)
+
+        self.sim_env.sim_props = create_input(base_fp=base_fp, engine_props=self.sim_env.sim_dict)
+        self.sim_env.modified_props = copy.deepcopy(self.sim_env.sim_props)
+
+        save_input(base_fp=base_fp, properties=self.sim_env.modified_props, file_name=file_name,
+                   data_dict=self.sim_env.modified_props)
+
+    def init_envs(self):
+        """
+        Sets up environments for RL agents based on the simulation configuration.
+        """
+        # Environment initialization logic (from the original _init_envs method)
+        if self.sim_env.sim_dict['path_algorithm'] in VALID_PATH_ALGORITHMS and self.sim_env.sim_dict['is_training']:
+            self.sim_env.path_agent.engine_props = self.sim_env.engine_obj.engine_props
+            self.sim_env.path_agent.setup_env()
+        elif self.sim_env.sim_dict['core_algorithm'] in VALID_CORE_ALGORITHMS and self.sim_env.sim_dict['is_training']:
+            self.sim_env.core_agent.engine_props = self.sim_env.engine_obj.engine_props
+            self.sim_env.core_agent.setup_env()
+
+    # TODO: Options to have select AI agents (drl_path_agents)
+    def load_models(self):
+        """
+        Loads pretrained models for RL agents and configures agent properties.
+        """
+        # Model loading logic (from the original _load_models method)
+        self.sim_env.path_agent.engine_props = self.sim_env.engine_obj.engine_props
+        self.sim_env.path_agent.rl_props = self.sim_env.rl_props
+        self.sim_env.path_agent.load_model(
+            model_path=self.sim_env.sim_dict['path_model'],
+            erlang=self.sim_env.sim_dict['erlang'],
+            num_cores=self.sim_env.sim_dict['cores_per_link']
+        )
+
+        self.sim_env.core_agent.engine_props = self.sim_env.engine_obj.engine_props
+        self.sim_env.core_agent.rl_props = self.sim_env.rl_props
+        self.sim_env.core_agent.load_model(
+            model_path=self.sim_env.sim_dict['core_model'],
+            erlang=self.sim_env.sim_dict['erlang'],
+            num_cores=self.sim_env.sim_dict['cores_per_link']
+        )

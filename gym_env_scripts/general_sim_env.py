@@ -1,16 +1,11 @@
-import copy
 import os
 
 import gymnasium as gym
 import numpy as np
 
-from src.engine import Engine
-from src.routing import Routing
-
-from helper_scripts.rl.rl_setup_helpers import setup_rl_sim
-from helper_scripts.setup_helpers import create_input, save_input
+from helper_scripts.rl.rl_setup_helpers import setup_rl_sim, RLSetupHelper
 from helper_scripts.rl.rl_helpers import RLHelpers
-from helper_scripts.sim_helpers import get_start_time, find_path_len, get_path_mod
+from helper_scripts.sim_helpers import find_path_len, get_path_mod
 from helper_scripts.rl.multi_agent_helpers import PathAgent, CoreAgent, SpectrumAgent
 
 from arg_scripts.rl_args import RLProps, VALID_PATH_ALGORITHMS, VALID_CORE_ALGORITHMS
@@ -45,10 +40,13 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
 
         # TODO: (drl_path_agents) Change all inputs to account for the new object
         self.rl_help_obj = RLHelpers(rl_props=self.rl_props, engine_obj=self.engine_obj, route_obj=self.route_obj)
+        # TODO: (drl_path_agents) Check these parameters and when setup helper is defined
         self._setup_agents()
 
         self.modified_props = None
         self.sim_props = None
+        self.setup_helper = RLSetupHelper(sim_env=self)
+
         # Used to get config variables into the observation space
         self.reset(options={'save_sim': False})
         self.observation_space = self.spectrum_agent.get_obs_space()
@@ -265,52 +263,13 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         return obs_dict
 
     def _init_envs(self):
-        # SB3 will init the environment for us, but not for non-DRL algorithms we've added
-        if self.sim_dict['path_algorithm'] in VALID_PATH_ALGORITHMS and self.sim_dict['is_training']:
-            self.path_agent.engine_props = self.engine_obj.engine_props
-            self.path_agent.setup_env()
-        elif self.sim_dict['core_algorithm'] in VALID_CORE_ALGORITHMS and self.sim_dict['is_training']:
-            self.core_agent.engine_props = self.engine_obj.engine_props
-            self.core_agent.setup_env()
+        self.setup_helper.init_envs()
 
     def _create_input(self):
-        base_fp = os.path.join('data')
-        self.sim_dict['thread_num'] = 's1'
-        # fixme (drl_path_agents)
-        # Added only for structure consistency
-        # time.sleep(20)
-        get_start_time(sim_dict={'s1': self.sim_dict})
-        file_name = "sim_input_s1.json"
+        self.setup_helper.create_input()
 
-        self.engine_obj = Engine(engine_props=self.sim_dict)
-        self.route_obj = Routing(engine_props=self.engine_obj.engine_props,
-                                 sdn_props=self.rl_props.mock_sdn_dict)
-
-        # fixme (drl_path_agents)
-        # time.sleep(30)
-        self.sim_props = create_input(base_fp=base_fp, engine_props=self.sim_dict)
-        self.modified_props = copy.deepcopy(self.sim_props)
-        if 'topology' in self.sim_props:
-            self.modified_props.pop('topology')
-            try:
-                self.modified_props.pop('callback')
-            except KeyError:
-                print('Callback does not exist, skipping.')
-
-        save_input(base_fp=base_fp, properties=self.modified_props, file_name=file_name,
-                   data_dict=self.modified_props)
-
-    # TODO: Options to have select AI agents (drl_path_agents)
     def _load_models(self):
-        self.path_agent.engine_props = self.engine_obj.engine_props
-        self.path_agent.rl_props = self.rl_props
-        self.path_agent.load_model(model_path=self.sim_dict['path_model'], erlang=self.sim_dict['erlang'],
-                                   num_cores=self.sim_dict['cores_per_link'])
-
-        self.core_agent.engine_props = self.engine_obj.engine_props
-        self.core_agent.rl_props = self.rl_props
-        self.core_agent.load_model(model_path=self.sim_dict['core_model'], erlang=self.sim_dict['erlang'],
-                                   num_cores=self.sim_dict['cores_per_link'])
+        self.setup_helper.load_models()
 
     def setup(self):
         """
