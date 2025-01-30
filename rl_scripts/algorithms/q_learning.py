@@ -11,7 +11,7 @@ from helper_scripts.sim_helpers import find_path_cong, classify_cong, calc_matri
 from helper_scripts.os_helpers import create_dir
 
 
-class QLearningHelpers:
+class QLearning:
     """
     Class dedicated to handling everything related to the q-learning algorithm.
     """
