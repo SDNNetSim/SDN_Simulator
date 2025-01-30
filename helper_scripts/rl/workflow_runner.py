@@ -1,6 +1,6 @@
 import os
 
-from helper_scripts.rl.rl_setup_helpers import print_info
+from helper_scripts.rl.setup_helpers import print_info
 from helper_scripts.rl.model_manager import get_trained_model, run_spectrum
 
 from arg_scripts.rl_args import VALID_SPECTRUM_ALGORITHMS, VALID_PATH_ALGORITHMS, VALID_CORE_ALGORITHMS

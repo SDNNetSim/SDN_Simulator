@@ -4,7 +4,7 @@ import optuna
 
 from stable_baselines3 import PPO
 
-from helper_scripts.rl.rl_setup_helpers import setup_ppo
+from helper_scripts.rl.setup_helpers import setup_ppo
 from helper_scripts.sim_helpers import modify_multiple_json_values
 from helper_scripts.sim_helpers import get_arrival_rates, run_simulation_for_arrival_rates, save_study_results
 from helper_scripts.rl.rl_zoo_helpers import run_rl_zoo

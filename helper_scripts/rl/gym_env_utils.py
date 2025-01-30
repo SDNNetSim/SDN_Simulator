@@ -1,6 +1,6 @@
 from gym_env_scripts.general_sim_env import SimEnv
 
-from helper_scripts.rl.rl_setup_helpers import setup_rl_sim
+from helper_scripts.rl.setup_helpers import setup_rl_sim
 from helper_scripts.rl.callback_helpers import GetModelParams
 
 
