@@ -21,7 +21,8 @@ from arg_scripts.rl_args import VALID_SPECTRUM_ALGORITHMS
 from arg_scripts.sdn_args import SDNProps
 
 
-class RLHelpers:
+# TODO: (drl_path_agents) Name changed
+class CoreUtilHelpers:
     """
     Contains methods to assist with reinforcement learning simulations.
     """
@@ -247,6 +248,116 @@ class RLHelpers:
                 self.rl_props.arrival_list.append(self.engine_obj.reqs_dict[req_time])
             else:
                 self.rl_props.depart_list.append(self.engine_obj.reqs_dict[req_time])
+
+
+class SimEnvHelpers:
+    """
+    Encapsulates high-level helper methods tailored for managing and enhancing the behavior of the `SimEnv` class during
+    reinforcement learning simulations.
+    """
+
+    def __init__(self, sim_env: object):
+        """
+        Initializes the helper methods class with shared context.
+
+        :param sim_env: The main simulation environment object.
+        """
+        self.sim_env = sim_env
+
+    def update_helper_obj(self, action: list, bandwidth: str):
+        """
+        Updates the helper object with new actions and configurations.
+        """
+        self.sim_env.rl_help_obj.path_index = self.sim_env.rl_props.path_index
+        self.sim_env.rl_help_obj.core_num = self.sim_env.rl_props.core_index
+
+        if self.sim_env.sim_dict['spectrum_algorithm'] in ('dqn', 'ppo', 'a2c'):
+            self.sim_env.rl_help_obj.rl_props.forced_index = action
+        else:
+            self.sim_env.rl_help_obj.rl_props.forced_index = None
+
+        self.sim_env.rl_help_obj.rl_props = self.sim_env.rl_props
+        self.sim_env.rl_help_obj.engine_obj = self.sim_env.engine_obj
+        self.sim_env.rl_help_obj.handle_releases()
+        self.sim_env.rl_help_obj.update_route_props(chosen_path=self.sim_env.rl_props.chosen_path_list,
+                                                    bandwidth=bandwidth)
+
+    def determine_core_penalty(self):
+        """
+        Determines penalty for the core algorithm based on path availability.
+        """
+        # Default to first fit if all paths fail
+        self.sim_env.rl_props.chosen_path = [self.sim_env.route_obj.route_props.paths_matrix[0]]
+        self.sim_env.rl_props.chosen_path_index = 0
+        for path_index, path_list in enumerate(self.sim_env.route_obj.route_props.paths_matrix):
+            mod_format_list = self.sim_env.route_obj.route_props.mod_formats_matrix[path_index]
+
+            was_allocated = self.sim_env.rl_help_obj.mock_handle_arrival(
+                engine_props=self.sim_env.engine_obj.engine_props,
+                sdn_props=self.sim_env.rl_props.mock_sdn_dict,
+                mod_format_list=mod_format_list,
+                path_list=path_list)
+
+            if was_allocated:
+                self.sim_env.rl_props.chosen_path_list = [path_list]
+                self.sim_env.rl_props.chosen_path_index = path_index
+                break
+
+    def handle_test_train_obs(self, curr_req: dict):
+        """
+        Handles path and core selection during training/testing phases based on the current request.
+
+        Returns:
+            Path modulation format, if available.
+        """
+        # TODO: (drl_path_agents) These will move to another file
+        if self.sim_env.sim_dict['is_training']:
+            if self.sim_env.sim_dict['path_algorithm'] in VALID_PATH_ALGORITHMS:
+                self.sim_env._handle_path_train_test()
+            elif self.sim_env.sim_dict['core_algorithm'] in VALID_CORE_ALGORITHMS:
+                self.sim_env._handle_core_train()
+            elif self.sim_env.sim_dict['spectrum_algorithm'] not in ('first_fit', 'best_fit', 'last_fit'):
+                self.sim_env._handle_spectrum_train()
+            else:
+                raise NotImplementedError
+        else:
+            self.sim_env._handle_path_train_test()
+            self.sim_env.core_agent.get_core()
+
+        path_len = find_path_len(path_list=self.sim_env.rl_props.chosen_path_list[0],
+                                 topology=self.sim_env.engine_obj.topology)
+        path_mod = get_path_mod(mods_dict=curr_req['mod_formats'], path_len=path_len)
+
+        return path_mod
+
+    # fixme: (drl_path_agents)
+    def get_spectrum_obs(self, curr_req: dict):  # pylint: disable=unused-argument
+        """
+        Generates the spectrum observation for the given request.
+
+        Returns:
+            Spectrum-related observation components.
+        """
+        # TODO: (drl_path_agents) Add logic for full spectrum assignment, skipping penalty for now
+        # path_mod = self._handle_test_train_obs(curr_req=curr_req)
+        # if path_mod is not False:
+        #     slots_needed = curr_req['mod_formats'][path_mod]['slots_needed']
+        # super_channels, no_penalty = self.rl_help_obj.get_super_channels(slots_needed=slots_needed,
+        #                                                                  num_channels=self.rl_props[
+        #                                                                      'super_channel_space'])
+        # No penalty for DRL agent, mistake not made by it
+        # else:
+        slots_needed = -1
+        no_penalty = True
+        super_channels = np.array([100.0, 100.0, 100.0])  # Placeholder values
+
+        self.sim_env.spectrum_agent.no_penalty = no_penalty
+        source_obs = np.zeros(self.sim_env.rl_props.num_nodes)
+        source_obs[self.sim_env.rl_props.source] = 1.0
+        dest_obs = np.zeros(self.sim_env.rl_props.num_nodes)
+        dest_obs[self.sim_env.rl_props.destination] = 1.0
+
+        return slots_needed, source_obs, dest_obs, super_channels
 
 
 def get_model(algorithm: str, device: str, env: object):
