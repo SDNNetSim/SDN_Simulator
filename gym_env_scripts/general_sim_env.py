@@ -10,7 +10,8 @@ from arg_scripts.rl_args import RLProps
 
 class SimEnv(gym.Env):  # pylint: disable=abstract-method
     """
-    Controls all reinforcement learning assisted simulations.
+    Defines a reinforcement learning-enabled simulation environment (SimEnv) that integrates multi-agent helpers,
+    setup utilities, and step management for dynamic, iterative simulations.
     """
     metadata = dict()
 
@@ -19,7 +20,6 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         super().__init__()
 
         self.rl_props = RLProps()
-
         if sim_dict is None:
             self.sim_dict = setup_rl_sim()['s1']
         else:
@@ -35,9 +35,7 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         self.engine_obj = None
         self.route_obj = None
 
-        # TODO: (drl_path_agents) Change all inputs to account for the new object
         self.rl_help_obj = CoreUtilHelpers(rl_props=self.rl_props, engine_obj=self.engine_obj, route_obj=self.route_obj)
-        # TODO: (drl_path_agents) Check these parameters and when setup helper is defined
         self._setup_agents()
 
         self.modified_props = None
@@ -51,13 +49,57 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         self.observation_space = self.spectrum_agent.get_obs_space()
         self.action_space = self.spectrum_agent.get_action_space()
 
-    def _setup_agents(self):
-        self.path_agent = PathAgent(path_algorithm=self.sim_dict['path_algorithm'], rl_props=self.rl_props,
-                                    rl_help_obj=self.rl_help_obj)
-        self.core_agent = CoreAgent(core_algorithm=self.sim_dict['core_algorithm'], rl_props=self.rl_props,
-                                    rl_help_obj=self.rl_help_obj)
-        self.spectrum_agent = SpectrumAgent(spectrum_algorithm=self.sim_dict['spectrum_algorithm'],
-                                            rl_props=self.rl_props)
+    def reset(self, seed: int = None, options: dict = None):  # pylint: disable=arguments-differ
+        """
+        Resets necessary variables after each iteration of the simulation.
+
+        :param seed: Seed for random generation.
+        :param options: Custom option input.
+        :return: The first observation and misc. information.
+        :rtype: tuple
+        """
+        super().reset(seed=seed)
+        self.rl_props.arrival_list = list()
+        self.rl_props.depart_list = list()
+
+        # TODO: fixme statement breaks for DRL (drl_path_agents)
+        if self.optimize is None:
+            self.iteration = 0
+            self.setup()
+
+        self._init_props_envs()
+        if not self.sim_dict['is_training'] and self.iteration == 0:
+            self._load_models()
+        if seed is None:
+            seed = self.iteration + 1
+
+        self.rl_help_obj.reset_reqs_dict(seed=seed)
+        obs = self.step_helper.get_obs()
+        info = self._get_info()
+        return obs, info
+
+    def _init_envs(self):
+        self.setup_helper.init_envs()
+
+    def _create_input(self):
+        self.setup_helper.create_input()
+
+    def _load_models(self):
+        self.setup_helper.load_models()
+
+    def _init_props_envs(self):
+        self.rl_props.arrival_count = 0
+        self.engine_obj.init_iter(iteration=self.iteration)
+        self.engine_obj.create_topology()
+        self.rl_help_obj.topology = self.engine_obj.topology
+        self.rl_props.num_nodes = len(self.engine_obj.topology.nodes)
+
+        if self.iteration == 0:
+            self._init_envs()
+
+        self.rl_help_obj.rl_props = self.rl_props
+        self.rl_help_obj.engine_obj = self.engine_obj
+        self.rl_help_obj.route_obj = self.route_obj
 
     def step(self, action: list):
         """
@@ -93,15 +135,6 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
     def _get_info():
         return dict()
 
-    def _init_envs(self):
-        self.setup_helper.init_envs()
-
-    def _create_input(self):
-        self.setup_helper.create_input()
-
-    def _load_models(self):
-        self.setup_helper.load_models()
-
     def setup(self):
         """
         Sets up this class.
@@ -109,7 +142,7 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         self.optimize = self.sim_dict['optimize']
         self.rl_props.k_paths = self.sim_dict['k_paths']
         self.rl_props.cores_per_link = self.sim_dict['cores_per_link']
-        # TODO: Only support for 'c' band...Maybe add multi-band (drl_path_agents)
+        # TODO: Only support for 'c' band (drl_path_agents)
         self.rl_props.spectral_slots = self.sim_dict['c_band']
 
         self._create_input()
@@ -128,45 +161,10 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
 
         self.engine_obj.engine_props['band_list'] = ['c']
 
-    def _init_props_envs(self):
-        self.rl_props.arrival_count = 0
-        self.engine_obj.init_iter(iteration=self.iteration)
-        self.engine_obj.create_topology()
-        self.rl_help_obj.topology = self.engine_obj.topology
-        self.rl_props.num_nodes = len(self.engine_obj.topology.nodes)
-
-        if self.iteration == 0:
-            self._init_envs()
-
-        self.rl_help_obj.rl_props = self.rl_props
-        self.rl_help_obj.engine_obj = self.engine_obj
-        self.rl_help_obj.route_obj = self.route_obj
-
-    def reset(self, seed: int = None, options: dict = None):  # pylint: disable=arguments-differ
-        """
-        Resets necessary variables after each iteration of the simulation.
-
-        :param seed: Seed for random generation.
-        :param options: Custom option input.
-        :return: The first observation and misc. information.
-        :rtype: tuple
-        """
-        super().reset(seed=seed)
-        self.rl_props.arrival_list = list()
-        self.rl_props.depart_list = list()
-
-        # TODO: fixme statement breaks for DRL (drl_path_agents)
-        if self.optimize is None:
-            self.iteration = 0
-            self.setup()
-
-        self._init_props_envs()
-        if not self.sim_dict['is_training'] and self.iteration == 0:
-            self._load_models()
-        if seed is None:
-            seed = self.iteration + 1
-
-        self.rl_help_obj.reset_reqs_dict(seed=seed)
-        obs = self.step_helper.get_obs()
-        info = self._get_info()
-        return obs, info
+    def _setup_agents(self):
+        self.path_agent = PathAgent(path_algorithm=self.sim_dict['path_algorithm'], rl_props=self.rl_props,
+                                    rl_help_obj=self.rl_help_obj)
+        self.core_agent = CoreAgent(core_algorithm=self.sim_dict['core_algorithm'], rl_props=self.rl_props,
+                                    rl_help_obj=self.rl_help_obj)
+        self.spectrum_agent = SpectrumAgent(spectrum_algorithm=self.sim_dict['spectrum_algorithm'],
+                                            rl_props=self.rl_props)
