@@ -29,27 +29,6 @@ def setup_rl_sim():
     return sim_dict
 
 
-def print_info(sim_dict: dict):
-    """
-    Prints relevant RL simulation information.
-
-    :param sim_dict: Simulation dictionary (engine props).
-    """
-    if sim_dict['path_algorithm'] in VALID_PATH_ALGORITHMS:
-        print(f'Beginning training process for the PATH AGENT using the '
-              f'{sim_dict["path_algorithm"].title()} algorithm.')
-    elif sim_dict['core_algorithm'] in VALID_CORE_ALGORITHMS:
-        print(f'Beginning training process for the CORE AGENT using the '
-              f'{sim_dict["core_algorithm"].title()} algorithm.')
-    elif sim_dict['spectrum_algorithm'] in VALID_SPECTRUM_ALGORITHMS:
-        print(f'Beginning training process for the SPECTRUM AGENT using the '
-              f'{sim_dict["spectrum_algorithm"].title()} algorithm.')
-    else:
-        raise ValueError(f'Invalid algorithm received or all algorithms are not reinforcement learning. '
-                         f'Expected: q_learning, dqn, ppo, a2c, Got: {sim_dict["path_algorithm"]}, '
-                         f'{sim_dict["core_algorithm"]}, {sim_dict["spectrum_algorithm"]}')
-
-
 def setup_ppo(env: object, device: str):
     """
     Setups up the StableBaselines3 PPO model.
@@ -73,6 +52,27 @@ def setup_ppo(env: object, device: str):
                 policy_kwargs=kwargs_dict)
 
     return model
+
+
+def print_info(sim_dict: dict):
+    """
+    Prints relevant RL simulation information.
+
+    :param sim_dict: Simulation dictionary (engine props).
+    """
+    if sim_dict['path_algorithm'] in VALID_PATH_ALGORITHMS:
+        print(f'Beginning training process for the PATH AGENT using the '
+              f'{sim_dict["path_algorithm"].title()} algorithm.')
+    elif sim_dict['core_algorithm'] in VALID_CORE_ALGORITHMS:
+        print(f'Beginning training process for the CORE AGENT using the '
+              f'{sim_dict["core_algorithm"].title()} algorithm.')
+    elif sim_dict['spectrum_algorithm'] in VALID_SPECTRUM_ALGORITHMS:
+        print(f'Beginning training process for the SPECTRUM AGENT using the '
+              f'{sim_dict["spectrum_algorithm"].title()} algorithm.')
+    else:
+        raise ValueError(f'Invalid algorithm received or all algorithms are not reinforcement learning. '
+                         f'Expected: q_learning, dqn, ppo, a2c, Got: {sim_dict["path_algorithm"]}, '
+                         f'{sim_dict["core_algorithm"]}, {sim_dict["spectrum_algorithm"]}')
 
 
 class SetupHelper:
