@@ -68,8 +68,8 @@ class PathAgent(BaseAgent):
         self.algorithm_obj.iteration = iteration
         if self.algorithm == 'q_learning':
             self.algorithm_obj.learn_rate = self.hyperparam_obj.curr_alpha
-            self.algorithm_obj.update_routes_matrix(reward=reward, level_index=self.level_index,
-                                                    net_spec_dict=net_spec_dict)
+            self.algorithm_obj.env.net_spec_dict = net_spec_dict
+            self.algorithm_obj.update_routes_matrix(reward=reward, level_index=self.level_index)
         elif self.algorithm == 'epsilon_greedy_bandit':
             self.algorithm_obj.update(reward=reward, arm=self.rl_props.chosen_path_index, iteration=iteration)
         elif self.algorithm == 'ucb_bandit':

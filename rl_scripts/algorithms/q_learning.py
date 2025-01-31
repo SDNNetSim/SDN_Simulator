@@ -220,114 +220,156 @@ class QLearning:
         self.path_levels = engine_props['path_levels']
         self.completed_sim = False
         self.iteration = 0
-        self.learn_rate = self.engine_props.get('learn_rate', 0.1)
+        self.learn_rate = engine_props.get('learn_rate', 0.1)
+        self.gamma = engine_props.get('gamma', 0.9)
 
         self.env = QLearningEnv(rl_props=self.rl_props, engine_props=self.engine_props, props=self.props,
                                 path_levels=self.path_levels)
+        self.env.net_spec_dict = None
 
         self.model_saver = QLearningModelSaver(engine_props=self.engine_props, props=self.props)
-
         self.stats = QLearningStats(props=self.props, engine_props=self.engine_props, model_saver=self.model_saver)
 
-    def get_max_future_q(self, path_list: list, net_spec_dict: dict, matrix: list, flag: str, core_index: int = None):
-        """
-        Gets the maximum possible future q for the next state s prime.
+        self.routes_matrix = None
+        self.cores_matrix = None
+        self.indices = None
+        self.current_q = None
+        self.max_future_q = None
 
-        :param path_list: The current path.
-        :param net_spec_dict: The network spectrum database.
-        :param matrix: The matrix to find the maximum current q-value in.
-        :param flag: A flag to determine whether the matrix is for the path or core agent.
-        :param core_index: The index of the core selected.
-        :return: The maximum future q.
-        :rtype: float
+    def setup_matrices(self, matrix_flag: str, level_index: int, core_index: int = None):
+        """
+        Sets up shared attributes like routes or cores matrices and indices.
+
+        :param matrix_flag: Defines whether to update 'routes_matrix' or 'cores_matrix'.
+        :param level_index: The current level index representing the state.
+        :param core_index: Index of the core, required for core updates.
+        """
+        if matrix_flag == 'routes_matrix':
+            self.routes_matrix = self.props.routes_matrix[self.rl_props.source][self.rl_props.destination]
+            self.indices = (self.rl_props.chosen_path_index, level_index)
+
+        elif matrix_flag == 'cores_matrix':
+            self.cores_matrix = self.props.cores_matrix[self.rl_props.source][self.rl_props.destination]
+            self.cores_matrix = self.cores_matrix[self.rl_props.chosen_path_index]
+            self.indices = (core_index, level_index)
+        else:
+            raise ValueError(f"Unsupported matrix_flag '{matrix_flag}'.")
+
+    def fetch_q_value(self, action: str, flag: str):
+        """
+        Fetches current or maximum future Q-value.
+
+        :param action: Specify whether to fetch "current" or "max_future".
+        :param flag: Determines whether working with "path" or "core".
+        :return: A structured result with the Q-value and its related metadata.
+        """
+        # Fetch current Q-value
+        if action == 'current':
+            if flag == 'path':
+                path_index, level_index = self.indices
+                q_value = self.routes_matrix[path_index][level_index]['q_value']
+                return {"q_value": q_value, "indices": self.indices,
+                        "state": {"path_index": path_index, "level_index": level_index}}
+
+            # Return core
+            core_index, level_index = self.indices
+            q_value = self.cores_matrix[core_index][level_index]['q_value']
+            return {"q_value": q_value, "indices": self.indices,
+                    "state": {"core_index": core_index, "level_index": level_index}}
+
+        # Fetch maximum future Q-value
+        if flag == 'path':
+            path_list = self.routes_matrix[self.rl_props.chosen_path_index][0][0]
+        elif flag == 'core':
+            core_index, level_index = self.indices
+            path_list = self.cores_matrix[core_index][level_index]['path']
+
+        new_congestion_index = self.calculate_congestion(path_list, flag)
+
+        if flag == 'path':
+            path_index, _ = self.indices
+            q_value = self.routes_matrix[path_index][new_congestion_index]['q_value']
+            return {"q_value": q_value, "indices": (path_index, new_congestion_index),
+                    "state": {"path_index": path_index, "congestion_index": new_congestion_index}}
+
+        core_index, _ = self.indices
+        q_value = self.cores_matrix[core_index][new_congestion_index]['q_value']
+        return {"q_value": q_value, "indices": (core_index, new_congestion_index),
+                "state": {"core_index": core_index, "congestion_index": new_congestion_index}}
+
+    def calculate_congestion(self, path_list, flag):
+        """
+        Calculates the congestion for a given path or core.
+
+        :param path_list: The path or configuration list.
+        :param flag: 'path' or 'core'.
+        :return: Congestion index (classified).
         """
         if flag == 'path':
-            new_cong = find_path_cong(path_list=path_list, net_spec_dict=net_spec_dict)
-            new_cong_index = classify_cong(curr_cong=new_cong)
-            max_future_q = matrix[self.rl_props.chosen_path_index][new_cong_index]['q_value']
+            new_congestion = find_path_cong(path_list=path_list, net_spec_dict=self.env.net_spec_dict)
         elif flag == 'core':
-            new_cong = find_core_cong(core_index=core_index, net_spec_dict=net_spec_dict, path_list=path_list)
-            new_cong_index = classify_cong(curr_cong=new_cong)
-            max_future_q = matrix[core_index][new_cong_index]['q_value']
+            core_index, _ = self.indices
+            new_congestion = find_core_cong(core_index=core_index, net_spec_dict=self.env.net_spec_dict,
+                                            path_list=path_list)
         else:
-            raise NotImplementedError
+            raise ValueError("Flag must be 'path' or 'core'.")
 
-        return max_future_q
+        return classify_cong(curr_cong=new_congestion)
 
-    def update_routes_matrix(self, reward: float, level_index: int, net_spec_dict: dict):
+    def compute_td_error_and_new_q(self, reward: float):
         """
-        Updates the q-table for the path/routing agent.
+        Compute the temporal difference error and updated Q-value using the Bellman equation.
 
-        :param reward: The reward received from the last action.
-        :param level_index: Index to determine the current state.
-        :param net_spec_dict: The network spectrum database.
+        :param reward: The received reward.
+        :return: td_error and new_q.
         """
-        routes_matrix = self.props.routes_matrix[self.rl_props.source][self.rl_props.destination]
-        path_list = routes_matrix[self.rl_props.chosen_path_index][level_index]
-        current_q = path_list['q_value']
+        delta = reward + self.gamma * self.max_future_q
+        td_error = self.current_q - delta
+        new_q = ((1.0 - self.learn_rate) * self.current_q) + (self.learn_rate * delta)
+        return td_error, new_q
 
-        max_future_q = self.get_max_future_q(path_list=routes_matrix[self.rl_props.chosen_path_index][0][0],
-                                             net_spec_dict=net_spec_dict, matrix=routes_matrix, flag='path')
+    def update_matrix(self, new_q: float, flag: str):
+        """
+        Update the Q-value in the matrix.
 
-        delta = reward + self.engine_props['gamma'] * max_future_q
-        td_error = current_q - (reward + self.engine_props['gamma'] * max_future_q)
+        :param new_q: The new Q-value to write into the matrix.
+        :param flag: Determines whether to update 'routes_matrix' or 'cores_matrix'.
+        """
+        if flag == 'path':
+            path_index, level_index = self.indices
+            self.routes_matrix[path_index][level_index]['q_value'] = new_q
+        elif flag == 'core':
+            core_index, level_index = self.indices
+            self.cores_matrix[core_index][level_index]['q_value'] = new_q
+        else:
+            raise ValueError(f"Invalid flag '{flag}'.")
+
+    def update_routes_matrix(self, reward: float, level_index: int):
+        """
+        Updates the Q-table for the path/routing agent.
+        """
+        self.setup_matrices(matrix_flag='routes_matrix', level_index=level_index)
+
+        current_result = self.fetch_q_value(action='current', flag='path')
+        self.current_q = current_result['q_value']
+        max_future_result = self.fetch_q_value(action='max_future', flag='path')
+        self.max_future_q = max_future_result['q_value']
+        td_error, new_q = self.compute_td_error_and_new_q(reward)
+
+        self.update_matrix(new_q=new_q, flag='path')
         self.stats.update_q_stats(reward=reward, stats_flag='routes_dict', td_error=td_error)
-        new_q = ((1.0 - self.learn_rate) * current_q) + (self.learn_rate * delta)
 
-        routes_matrix = self.props.routes_matrix[self.rl_props.source][self.rl_props.destination]
-        routes_matrix[self.rl_props.chosen_path_index][level_index]['q_value'] = new_q
-
-    def update_cores_matrix(self, reward: float, core_index: int, level_index: int, net_spec_dict: dict):
+    def update_cores_matrix(self, reward: float, core_index: int, level_index: int):
         """
-        Updates the q-table for the core agent.
-
-        :param reward: The reward received from the last action.
-        :param core_index: The index of the core selected.
-        :param level_index: Index to determine the current state.
-        :param net_spec_dict: The network spectrum database.
+        Updates the Q-table for the core agent.
         """
-        cores_matrix = self.props.cores_matrix[self.rl_props.source][self.rl_props.destination]
-        cores_matrix = cores_matrix[self.rl_props.chosen_path_index]
-        cores_list = cores_matrix[self.rl_props.core_index][level_index]
-        current_q = cores_list['q_value']
+        self.setup_matrices(matrix_flag='cores_matrix', level_index=level_index, core_index=core_index)
 
-        max_future_q = self.get_max_future_q(path_list=cores_list['path'], net_spec_dict=net_spec_dict,
-                                             matrix=cores_matrix, flag='core', core_index=core_index)
+        current_result = self.fetch_q_value(action='current', flag='core')
+        self.current_q = current_result['q_value']
+        max_future_result = self.fetch_q_value(action='max_future', flag='core')
+        self.max_future_q = max_future_result['q_value']
+        td_error, new_q = self.compute_td_error_and_new_q(reward)
 
-        delta = reward + self.engine_props['gamma'] * max_future_q
-        td_error = current_q - (reward + self.engine_props['gamma'] * max_future_q)
+        self.update_matrix(new_q=new_q, flag='core')
         self.stats.update_q_stats(reward=reward, stats_flag='cores_dict', td_error=td_error)
-        new_q = ((1.0 - self.learn_rate) * current_q) + (self.learn_rate * delta)
-
-        cores_matrix[core_index][level_index]['q_value'] = new_q
-
-    def get_max_curr_q(self, cong_list: list, matrix_flag: str):
-        """
-        Gets the maximum current q-value from the current state s.
-
-        :param cong_list: A list determining the congestion levels of cores or paths in the current state.
-        :param matrix_flag: A flag to determine whether to update the path or core q-table.
-        :return: The maximum q-value index (state) and an object
-        :rtype: tuple
-        """
-        q_values = list()
-        for obj_index, _, level_index in cong_list:
-            if matrix_flag == 'routes_matrix':
-                matrix = self.props.routes_matrix[self.rl_props.source][self.rl_props.destination]
-                sub_flag = 'paths_list'
-            elif matrix_flag == 'cores_matrix':
-                matrix = self.props.cores_matrix[self.rl_props.source][self.rl_props.destination]
-                matrix = matrix[self.rl_props.chosen_path_index]
-                sub_flag = 'cores_list'
-            else:
-                raise ValueError
-
-            curr_q = matrix[obj_index][level_index]['q_value']
-            q_values.append(curr_q)
-
-        max_index = np.argmax(q_values)
-        if sub_flag == 'cores_list':
-            max_obj = self.rl_props.cores_list[max_index]
-        else:
-            max_obj = self.rl_props.paths_list[max_index]
-        return max_index, max_obj
