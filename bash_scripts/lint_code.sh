@@ -16,16 +16,24 @@ if ! command -v pylint &> /dev/null; then
   exit 1
 fi
 
-# Debugging: Log all found .py files
+# Identify Python files, excluding specific files or directories
 echo "Identifying Python files..."
-find . -path ./bash\* -prune -o -name "*.py" -print
+
+# Add paths to ignore using -path and -prune (ONLY ONCE).
+PYTHON_FILES=$(find . \( \
+  -path ./bash\* -o \
+  -path ./.venv \
+\) -prune -o -name "*.py" -print)
+
+# Debugging: Log all found Python files
+echo "Found Python files:"
+echo "$PYTHON_FILES"
 
 # Run pylint on each file
 echo "Running pylint..."
-find . -path ./bash\* -prune -o -name "*.py" -print | while read -r file; do
+for file in $PYTHON_FILES; do
   echo "Linting $file"
   pylint "$file" || exit 1
 done
 
 echo "Linting completed successfully!"
- 
