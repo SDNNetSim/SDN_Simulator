@@ -39,6 +39,7 @@ class SimEnvUtils:
 
         return terminated
 
+    # TODO: (drl_path_agents) I don't think this is being called when it's supposed to
     def handle_test_train_step(self, was_allocated: bool, path_length: int):
         """
         Handles updates specific to training or testing during the current simulation step.

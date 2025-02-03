@@ -12,6 +12,7 @@ def run_rl_sim():
     """
     The main function that controls reinforcement learning simulations, including hyperparameter optimization.
     """
+    # TODO: (drl_path_agents) Bug is in setup, functions not being called properly
     env, sim_dict = create_environment()
 
     if not sim_dict['optimize']:

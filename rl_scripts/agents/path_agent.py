@@ -63,13 +63,16 @@ class PathAgent(BaseAgent):
         self.reward_penalty_list[self.hyperparam_obj.iteration] += reward
         self.hyperparam_obj.curr_reward = reward
         self.iteration = iteration
+        self.algorithm_obj.learn_rate = self.hyperparam_obj.curr_alpha
+
         self._handle_hyperparams()
 
         self.algorithm_obj.iteration = iteration
         if self.algorithm == 'q_learning':
             self.algorithm_obj.learn_rate = self.hyperparam_obj.curr_alpha
             self.algorithm_obj.env.net_spec_dict = net_spec_dict
-            self.algorithm_obj.update_routes_matrix(reward=reward, level_index=self.level_index)
+            self.algorithm_obj.update_q_matrix(reward=reward, level_index=self.level_index, net_spec_dict=net_spec_dict,
+                                               flag='path')
         elif self.algorithm == 'epsilon_greedy_bandit':
             self.algorithm_obj.update(reward=reward, arm=self.rl_props.chosen_path_index, iteration=iteration)
         elif self.algorithm == 'ucb_bandit':
@@ -88,12 +91,13 @@ class PathAgent(BaseAgent):
             self.rl_props.chosen_path_list = self.rl_props.paths_list[self.rl_props.chosen_path_index]
         else:
             self.rl_props.chosen_path_index, self.rl_props.chosen_path_list = self.algorithm_obj.get_max_curr_q(
-                cong_list=self.cong_list, matrix_flag='routes_matrix')
+                cong_list=self.cong_list, matrix_flag="routes_matrix")
             self.level_index = self.cong_list[self.rl_props.chosen_path_index][-1]
 
     def _ql_route(self):
         random_float = float(np.round(np.random.uniform(0, 1), decimals=1))
-        routes_matrix = self.algorithm_obj.props.routes_matrix
+        routes_matrix = self.algorithm_obj.props.routes_matrix[self.rl_props.source, self.rl_props.destination]['path']
+        # TODO: Error here
         self.rl_props.paths_list = routes_matrix[self.rl_props.source][self.rl_props.destination]['path']
 
         self.cong_list = self.rl_help_obj.classify_paths(paths_list=self.rl_props.paths_list)
@@ -111,7 +115,7 @@ class PathAgent(BaseAgent):
         source = paths_list[0][0]
         dest = paths_list[0][-1]
 
-        self.algorithm_obj.epsilon = self.hyperparam_obj.curr_epsilon
+        self.algorithm_obj.props.epsilon = self.hyperparam_obj.curr_epsilon
         self.rl_props.chosen_path_index = self.algorithm_obj.select_path_arm(source=int(source), dest=int(dest))
         self.rl_props.chosen_path_list = route_obj.route_props.paths_matrix[self.rl_props.chosen_path_index]
 

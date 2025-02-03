@@ -34,7 +34,6 @@ class BaseAgent:
 
         if self.algorithm == 'q_learning':
             self.algorithm_obj = QLearning(rl_props=self.rl_props, engine_props=self.engine_props)
-            self.algorithm_obj.env.setup_env()
         elif self.algorithm == 'epsilon_greedy_bandit':
             self.algorithm_obj = EpsilonGreedyBandit(rl_props=self.rl_props, engine_props=self.engine_props,
                                                      is_path=is_path)
