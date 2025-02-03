@@ -1,5 +1,4 @@
 # pylint: disable=c-extension-no-member
-import os
 
 import networkx as nx
 from PyQt5 import QtWidgets as qtw, QtCore as qtc
