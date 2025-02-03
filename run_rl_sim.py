@@ -7,6 +7,7 @@ from rl_scripts.utils.gym_env_util import create_environment
 # TODO: (drl_path_agents) Does not support multi-band
 # fixme: Saves extra input directory (drl_path_agents)
 # fixme: Saves to second traffic volume file (400 to 500) (drl_path_agents)
+# TODO: (drl_path_agents) The goal is to get the path agent working for DRL and then update spectrum and core
 
 def run_rl_sim():
     """

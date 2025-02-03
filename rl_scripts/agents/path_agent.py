@@ -116,6 +116,12 @@ class PathAgent(BaseAgent):
         self.rl_props.chosen_path_index = self.algorithm_obj.select_path_arm(source=int(source), dest=int(dest))
         self.rl_props.chosen_path_list = route_obj.route_props.paths_matrix[self.rl_props.chosen_path_index]
 
+    def _drl_route(self):
+        if self.algorithm == 'ppo':
+            pass
+        else:
+            raise NotImplementedError
+
     def get_route(self, **kwargs):
         """
         Assign a route for the current request.
@@ -124,5 +130,7 @@ class PathAgent(BaseAgent):
             self._ql_route()
         elif self.algorithm in ('epsilon_greedy_bandit', 'thompson_sampling_bandit', 'ucb_bandit'):
             self._bandit_route(route_obj=kwargs['route_obj'])
+        elif self.algorithm in ('ppo', 'a2c'):
+            self._drl_route()
         else:
             raise NotImplementedError
