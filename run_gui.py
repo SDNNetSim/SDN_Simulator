@@ -19,7 +19,7 @@ class MainWindow(qtw.QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("SD-EON Simulator")
+        self.setWindowTitle("FUSION Simulator")
         self.resize(1280, 720)
 
         self.button_help_obj = ButtonHelpers()
@@ -133,6 +133,7 @@ class MainWindow(qtw.QMainWindow):
         # Bottom pane for simulation output
         self.bottom_pane = qtw.QPlainTextEdit(self)
         self.bottom_pane.setCursor(qtc.Qt.ArrowCursor)
+        self.bottom_pane.viewport().setCursor(qtc.Qt.ArrowCursor)
         self.bottom_pane.setReadOnly(True)
         self.bottom_pane.setMinimumHeight(150)
         self.vertical_splitter.addWidget(self.bottom_pane)

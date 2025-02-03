@@ -1,7 +1,9 @@
 # pylint: disable=c-extension-no-member
+import os
 
 import networkx as nx
 from PyQt5 import QtWidgets as qtw, QtCore as qtc
+
 from data_scripts.structure_data import create_network
 
 from gui_scripts.gui_helpers.topology_helpers import TopologyCanvas
@@ -9,6 +11,7 @@ from gui_scripts.gui_helpers.general_helpers import SettingsDialog
 from gui_scripts.gui_args.config_args import GUI_DEFAULT_SETTINGS
 from gui_scripts.gui_helpers.dialogs import Alert
 from gui_scripts.gui_args.config_args import AlertCode
+
 
 
 class MenuBar(qtw.QMenuBar):
@@ -134,6 +137,85 @@ class MenuCreator:
         return plot_menu_obj
 
 
+def load_license_text(file_path: str) -> str:
+    """
+    Reads the license text from the specified file path.
+
+    :param file_path: Path to the LICENSE file.
+    :return: Content of the LICENSE file as a string.
+    """
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            return file.read()
+    except FileNotFoundError:
+        return "LICENSE file not found."
+    except Exception as e:
+        return f"An error occurred while loading the LICENSE file: {e}"
+
+
+class AboutDialog(qtw.QDialog):
+    """
+    About dialog with three tabs: About, License, and a blank tab for future use.
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("About FUSION Simulator")
+        self.resize(600, 400)
+
+        # Create tab widget
+        tab_widget = qtw.QTabWidget(self)
+
+        # About tab
+        about_tab = qtw.QWidget()
+        about_layout = qtw.QVBoxLayout(about_tab)
+        about_text = qtw.QLabel(
+            "FUSION Simulator\n\n"
+            "Welcome to FUSION, an open-source venture into the future of networking.\n\n"
+            "For more information, visit:"
+        )
+        about_text.setWordWrap(True)  # Enable word wrapping
+        about_layout.addWidget(about_text)
+
+        # Hyperlink
+        link_label = qtw.QLabel(
+            '<a href="https://github.com/SDNNetSim/FUSION/" style="color: blue;">'
+            'https://github.com/SDNNetSim/FUSION/</a>'
+        )
+        link_label.setOpenExternalLinks(True)  # Make the link clickable
+        about_layout.addWidget(link_label)
+
+        tab_widget.addTab(about_tab, "About")
+
+        # License tab
+        license_tab = qtw.QWidget()
+        license_layout = qtw.QVBoxLayout(license_tab)
+
+        # Read the license text from the LICENSE file
+        license_text = load_license_text("LICENSE")  # Adjust the file path as needed
+        license_text_area = qtw.QPlainTextEdit(license_text)
+        license_text_area.setReadOnly(True)  # Make it read-only
+        license_layout.addWidget(license_text_area)
+
+        tab_widget.addTab(license_tab, "License")
+
+        # Blank tab for future
+        blank_tab = qtw.QWidget()
+        blank_layout = qtw.QVBoxLayout(blank_tab)
+        placeholder_label = qtw.QLabel("Future functionality will go here.")
+        blank_layout.addWidget(placeholder_label)
+        tab_widget.addTab(blank_tab, "Blank Tab")
+
+        # Main layout of the dialog
+        main_layout = qtw.QVBoxLayout(self)
+        main_layout.addWidget(tab_widget)
+
+        # "Close" button
+        close_button = qtw.QPushButton("Close")
+        close_button.clicked.connect(self.close)
+        main_layout.addWidget(close_button, alignment=qtc.Qt.AlignRight)
+
+
 class MenuActionHandler:
     """
     Helper class to handle creation and functionality of menu bar actions.
@@ -244,7 +326,16 @@ class MenuActionHandler:
         :rtype : QtWidgets.QAction
         """
         about_action = qtw.QAction("About", self.menu_bar_obj)
+        about_action.triggered.connect(self._show_about_dialog)       # connects to show dialog
         return about_action
+
+    def _show_about_dialog(self):
+        """
+        Opens the custom About dialog with tabs.
+        """
+        about_dialog = AboutDialog(self.menu_bar_obj)
+        about_dialog.exec()
+
 
     def _load_config_file(self):
         """
