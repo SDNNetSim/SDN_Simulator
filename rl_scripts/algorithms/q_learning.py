@@ -70,20 +70,40 @@ class QLearning:
         new_cong = find_core_cong(core_index, net_spec_dict, path_list) if flag == 'core' else find_path_cong(path_list,
                                                                                                               net_spec_dict)
         new_cong_index = classify_cong(new_cong)
-        max_future_q = matrix[core_index if flag == 'core' else self.rl_props.chosen_path_index, new_cong_index][
-            'q_value']
+
+        max_future_q = matrix[core_index if flag == 'core' else new_cong_index]['q_value']
         return max_future_q
+
+    def get_max_curr_q(self, cong_list, matrix_flag):
+        """Gets the maximum current Q-value from the current state."""
+        matrix = (
+            self.props.routes_matrix[self.rl_props.source, self.rl_props.destination]
+            if matrix_flag == 'routes_matrix'
+            else self.props.cores_matrix[
+                self.rl_props.source, self.rl_props.destination, self.rl_props.chosen_path_index]
+        )
+
+        q_values = [matrix[obj_index, level_index]['q_value'] for obj_index, _, level_index in cong_list]
+        max_index = np.argmax(q_values)
+        max_obj = (
+            self.rl_props.paths_list[max_index]
+            if matrix_flag == 'routes_matrix'
+            else self.rl_props.cores_list[max_index]
+        )
+
+        return max_index, max_obj
 
     def update_q_matrix(self, reward, level_index, net_spec_dict, flag, core_index=None):
         """Updates Q-values for either path or core selection."""
         matrix = self.props.cores_matrix if flag == 'core' else self.props.routes_matrix
         matrix = matrix[self.rl_props.source, self.rl_props.destination]
-        matrix = matrix[self.rl_props.chosen_path_index] if flag == 'core' else matrix
+        # matrix = matrix[self.rl_props.chosen_path_index] if flag == 'core' else matrix
+        matrix = matrix[self.rl_props.chosen_path_index] if flag == 'path' else matrix
         current_q = matrix[core_index if flag == 'core' else level_index]['q_value']
 
         max_future_q = self.get_max_future_q(matrix[core_index if flag == 'core' else level_index]['path'],
                                              net_spec_dict, matrix, flag, core_index)
-        delta = reward + self.engine_props['discount_factor'] * max_future_q
+        delta = reward + self.engine_props['gamma'] * max_future_q
         td_error = current_q - delta
         new_q = ((1 - self.learn_rate) * current_q) + (self.learn_rate * delta)
 

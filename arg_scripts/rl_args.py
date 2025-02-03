@@ -4,6 +4,7 @@ import optuna
 
 # TODO: (drl_path_agents) Support only for path selection for all functions
 # TODO: (drl_path_agents) UCB Bandit 'c' variable is a constant
+# TODO: (drl_path_agents) Move this to another function
 def get_optuna_hyperparams(sim_dict: dict, trial: optuna.trial):
     """
     Suggests hyperparameters for the Optuna trial.

@@ -106,6 +106,7 @@ def find_path_cong(path_list: list, net_spec_dict: dict, band: str = 'c'):
     links_cong_list = list()
     for src, dest in zip(path_list, path_list[1:]):
         src_dest = (src, dest)
+
         cores_matrix = net_spec_dict[src_dest]['cores_matrix']
         cores_per_link = float(len(cores_matrix[band]))
 

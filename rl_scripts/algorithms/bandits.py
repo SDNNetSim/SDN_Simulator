@@ -151,6 +151,7 @@ class EpsilonGreedyBandit:
         self.counts, self.values = get_q_table(self=self)  # Amount of times an action has been taken and every V(s,a)
 
     def _get_action(self, state_action_pair: tuple):
+        # TODO: (drl_path_agents) Epsilon greedy bandit has not been updated
         if np.random.rand() < self.epsilon:
             return np.random.randint(self.n_arms)
 

@@ -70,7 +70,6 @@ class PathAgent(BaseAgent):
         self.algorithm_obj.iteration = iteration
         if self.algorithm == 'q_learning':
             self.algorithm_obj.learn_rate = self.hyperparam_obj.curr_alpha
-            self.algorithm_obj.env.net_spec_dict = net_spec_dict
             self.algorithm_obj.update_q_matrix(reward=reward, level_index=self.level_index, net_spec_dict=net_spec_dict,
                                                flag='path')
         elif self.algorithm == 'epsilon_greedy_bandit':
@@ -97,8 +96,7 @@ class PathAgent(BaseAgent):
     def _ql_route(self):
         random_float = float(np.round(np.random.uniform(0, 1), decimals=1))
         routes_matrix = self.algorithm_obj.props.routes_matrix[self.rl_props.source, self.rl_props.destination]['path']
-        # TODO: Error here
-        self.rl_props.paths_list = routes_matrix[self.rl_props.source][self.rl_props.destination]['path']
+        self.rl_props.paths_list = routes_matrix
 
         self.cong_list = self.rl_help_obj.classify_paths(paths_list=self.rl_props.paths_list)
         if self.rl_props.paths_list.ndim != 1:
@@ -109,13 +107,12 @@ class PathAgent(BaseAgent):
         if len(self.rl_props.chosen_path_list) == 0:
             raise ValueError('The chosen path can not be None')
 
-    # TODO: (drl_path_agents) Change q-learning to be like this (agent_obj.something)
     def _bandit_route(self, route_obj: object):
         paths_list = route_obj.route_props.paths_matrix
         source = paths_list[0][0]
         dest = paths_list[0][-1]
 
-        self.algorithm_obj.props.epsilon = self.hyperparam_obj.curr_epsilon
+        self.algorithm_obj.epsilon = self.hyperparam_obj.curr_epsilon
         self.rl_props.chosen_path_index = self.algorithm_obj.select_path_arm(source=int(source), dest=int(dest))
         self.rl_props.chosen_path_list = route_obj.route_props.paths_matrix[self.rl_props.chosen_path_index]
 
