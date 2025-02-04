@@ -310,12 +310,6 @@ class SimEnvHelpers:
             self.sim_env.step_helpers.handle_path_train_test()
             self.sim_env.core_agent.get_core()
 
-        path_len = find_path_len(path_list=self.sim_env.rl_props.chosen_path_list[0],
-                                 topology=self.sim_env.engine_obj.topology)
-        path_mod = get_path_mod(mods_dict=curr_req['mod_formats'], path_len=path_len)
-
-        return path_mod
-
     # fixme: (drl_path_agents)
     def get_spectrum_obs(self, curr_req: dict):  # pylint: disable=unused-argument
         """

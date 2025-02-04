@@ -116,9 +116,13 @@ class PathAgent(BaseAgent):
         self.rl_props.chosen_path_index = self.algorithm_obj.select_path_arm(source=int(source), dest=int(dest))
         self.rl_props.chosen_path_list = route_obj.route_props.paths_matrix[self.rl_props.chosen_path_index]
 
+    # TODO: (drl_path_agents) Let's do something similar to the other methods here
     def _drl_route(self):
         if self.algorithm == 'ppo':
-            pass
+            # Mock path, this will be handled in SB3 but for structural purposes we must do it on
+            # a reset here (first call to the Env class)
+            self.rl_props.chosen_path_index = 0
+            self.rl_props.chosen_path_list = ['0', '1']
         else:
             raise NotImplementedError
 

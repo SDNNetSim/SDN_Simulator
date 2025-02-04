@@ -5,6 +5,7 @@ import optuna
 # TODO: (drl_path_agents) Support only for path selection for all functions
 # TODO: (drl_path_agents) UCB Bandit 'c' variable is a constant
 # TODO: (drl_path_agents) Move this to another function
+# TODO: (drl_path_agents) Move this to another file
 def get_optuna_hyperparams(sim_dict: dict, trial: optuna.trial):
     """
     Suggests hyperparameters for the Optuna trial.
@@ -151,10 +152,8 @@ VALID_CORE_ALGORITHMS = [
     'ucb_bandit',
 ]
 
-VALID_SPECTRUM_ALGORITHMS = [
-    'dqn',
+VALID_DRL_ALGORITHMS = [
     'ppo',
-    'a2c',
 ]
 
 # TODO: (drl_path_agents) Detect if running on Unity cluster or locally

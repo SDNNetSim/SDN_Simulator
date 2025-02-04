@@ -6,47 +6,50 @@ from helper_scripts.sim_helpers import modify_multiple_json_values
 from helper_scripts.sim_helpers import get_arrival_rates, run_simulation_for_arrival_rates, save_study_results
 from rl_scripts.helpers.rl_zoo_helpers import run_rl_zoo
 from rl_scripts.helpers.setup_helpers import print_info
-from rl_scripts.model_manager import get_trained_model, get_model
+from rl_scripts.model_manager import get_trained_model, get_model, save_model
 
 from arg_scripts.rl_args import get_optuna_hyperparams
 
-from arg_scripts.rl_args import VALID_SPECTRUM_ALGORITHMS, VALID_PATH_ALGORITHMS, VALID_CORE_ALGORITHMS
+from arg_scripts.rl_args import VALID_PATH_ALGORITHMS, VALID_CORE_ALGORITHMS, VALID_DRL_ALGORITHMS
 
 
-def run_spectrum(sim_dict: dict, env: object):
+# TODO: (drl_path_agents) Naming convention
+def _run_drl_training(env: object, sim_dict: dict):
     """
-    Handles training RL models for spectral resource allocation or hyperparameter optimization.
-
-    :param sim_dict: A dictionary containing simulation configurations, including RL-related parameters.
-    :param env: The reinforcement learning environment.
+    Trains a deep reinforcement learning model with StableBaselines3.
     """
     if sim_dict['optimize_hyperparameters']:
         run_rl_zoo(sim_dict=sim_dict)
     else:
-        model, yaml_dict = get_model(algorithm=sim_dict['spectrum_algorithm'], device=sim_dict['device'],
-                                     env=env)
+        model, yaml_dict = get_model(sim_dict=sim_dict, device=sim_dict['device'], env=env)
         model.learn(total_timesteps=yaml_dict['n_timesteps'], log_interval=sim_dict['print_step'],
                     callback=sim_dict['callback'])
 
-        save_fp = os.path.join('logs', 'ppo', env.modified_props['network'], env.modified_props['date'],
-                               env.modified_props['sim_start'], 'ppo_model.zip')
-        model.save(save_fp)
+        save_model(sim_dict=sim_dict, env=env, model=model)
 
 
-def run_iters(env: object, sim_dict: dict, is_training: bool, model=None):
+def run_iters(env: object, sim_dict: dict, is_training: bool, drl_agent: bool, model=None):
     """
     Runs the specified number of episodes in the reinforcement learning environment.
 
     :param env: The reinforcement learning environment.
     :param sim_dict: A dictionary containing simulation settings, such as maximum iterations.
     :param is_training: A boolean flag indicating whether the model should train or evaluate.
+    :param drl_agent: A boolean flag indicating whether the model is a DRL agent.
     :param model: The RL model to be used; required only if not in training mode.
     """
     completed_episodes = 0
     obs, _ = env.reset()
     while True:
         if is_training:
-            obs, _, is_terminated, is_truncated, _ = env.step([0])
+            if drl_agent:
+                # TODO: (drl_path_agents) model used to be passed here
+                _run_drl_training(env=env, sim_dict=sim_dict)
+            else:
+                # TODO: (drl_path_agents) Improve this logic
+                # Note that we are mocking an action here for consistency with our own agents and agents from SB3
+                obs, _, is_terminated, is_truncated, _ = env.step([0])
+        # TODO: (drl_path_agents) Is this logic ok?
         else:
             # TODO: Implement (drl_path_agents)
             action, _states = model.predict(obs)
@@ -69,11 +72,9 @@ def run_testing(env: object, sim_dict: dict):
     :param sim_dict: A dictionary containing simulation-specific parameters (e.g., model type, paths).
     """
     model = get_trained_model(env=env, sim_dict=sim_dict)
+    # TODO: (drl_path_agents) Getting a trained model is no longer functional
+    # TODO: Need to determine drl agent or not here
     run_iters(env=env, sim_dict=sim_dict, is_training=False, model=model)
-    # fixme: Hard coded (drl_path_agents)
-    save_fp = os.path.join('logs', 'ppo', env.modified_props['network'], env.modified_props['date'],
-                           env.modified_props['sim_start'], 'ppo_model.zip')
-    model.save(save_fp)
 
 
 def run(env: object, sim_dict: dict):
@@ -90,9 +91,14 @@ def run(env: object, sim_dict: dict):
     if sim_dict['is_training']:
         # Print info function should already error check valid input, no need to raise an error here
         if sim_dict['path_algorithm'] in VALID_PATH_ALGORITHMS or sim_dict['core_algorithm'] in VALID_CORE_ALGORITHMS:
-            run_iters(env=env, sim_dict=sim_dict, is_training=True)
-        elif sim_dict['spectrum_algorithm'] in VALID_SPECTRUM_ALGORITHMS:
-            run_spectrum(sim_dict=sim_dict, env=env)
+            run_iters(
+                env=env,
+                sim_dict=sim_dict,
+                is_training=True,
+                drl_agent=sim_dict['path_algorithm'] in VALID_DRL_ALGORITHMS
+            )
+        else:
+            raise NotImplementedError
     else:
         run_testing(sim_dict=sim_dict, env=env)
 

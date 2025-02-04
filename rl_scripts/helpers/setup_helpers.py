@@ -2,6 +2,7 @@ import os
 import copy
 
 from stable_baselines3 import PPO
+from torch import nn  # pylint: disable=unused-import
 
 from src.engine import Engine
 from src.routing import Routing
@@ -12,7 +13,7 @@ from helper_scripts.sim_helpers import parse_yaml_file, get_start_time
 from config_scripts.parse_args import parse_args
 from config_scripts.setup_config import read_config
 
-from arg_scripts.rl_args import VALID_PATH_ALGORITHMS, VALID_CORE_ALGORITHMS, VALID_SPECTRUM_ALGORITHMS
+from arg_scripts.rl_args import VALID_PATH_ALGORITHMS, VALID_CORE_ALGORITHMS
 
 
 def setup_rl_sim():
@@ -42,6 +43,8 @@ def setup_ppo(env: object, device: str):
     yaml_dict = parse_yaml_file(yaml_path)
     env_name = list(yaml_dict.keys())[0]
     kwargs_dict = eval(yaml_dict[env_name]['policy_kwargs'])  # pylint: disable=eval-used
+    # TODO: (drl_path_agents) shape is not defined?
+    # TODO: Observation space seems to be none
     model = PPO(env=env, device=device, policy=yaml_dict[env_name]['policy'],
                 n_steps=yaml_dict[env_name]['n_steps'],
                 batch_size=yaml_dict[env_name]['batch_size'], gae_lambda=yaml_dict[env_name]['gae_lambda'],
@@ -66,9 +69,8 @@ def print_info(sim_dict: dict):
     elif sim_dict['core_algorithm'] in VALID_CORE_ALGORITHMS:
         print(f'Beginning training process for the CORE AGENT using the '
               f'{sim_dict["core_algorithm"].title()} algorithm.')
-    elif sim_dict['spectrum_algorithm'] in VALID_SPECTRUM_ALGORITHMS:
-        print(f'Beginning training process for the SPECTRUM AGENT using the '
-              f'{sim_dict["spectrum_algorithm"].title()} algorithm.')
+    elif sim_dict['spectrum_algorithm']:
+        raise NotImplementedError
     else:
         raise ValueError(f'Invalid algorithm received or all algorithms are not reinforcement learning. '
                          f'Expected: q_learning, dqn, ppo, a2c, Got: {sim_dict["path_algorithm"]}, '

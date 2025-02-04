@@ -48,6 +48,8 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
 
         # Used to get config variables into the observation space
         self.reset(options={'save_sim': False})
+
+        # TODO: (drl_path_agent) Here
         self.observation_space = self.spectrum_agent.get_obs_space()
         self.action_space = self.spectrum_agent.get_action_space()
 
@@ -123,7 +125,10 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         path_length = self.route_obj.route_props.weights_list[0]
         self.step_helper.handle_test_train_step(was_allocated=was_allocated, path_length=path_length)
         self.rl_help_obj.update_snapshots()
-        drl_reward = self.spectrum_agent.get_reward(was_allocated=was_allocated)
+
+        # TODO (drl_path_agents) Spectrum no longer relates to only the drl reward
+        # drl_reward = self.spectrum_agent.get_reward(was_allocated=was_allocated)
+        drl_reward = 1.0
 
         self.rl_props.arrival_count += 1
         terminated = self.step_helper.check_terminated()

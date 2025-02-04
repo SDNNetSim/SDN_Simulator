@@ -75,6 +75,7 @@ class SimEnvUtils:
             self.sim_env.route_obj.engine_props['route_method'] = 'k_shortest_path'
             self.sim_env.route_obj.get_route()
 
+        # TODO: (drl_path_agentas) We need access to model here to return a path
         self.sim_env.path_agent.get_route(route_obj=self.sim_env.route_obj)
         self.sim_env.rl_help_obj.rl_props.chosen_path_list = [self.sim_env.rl_props.chosen_path_list]
         self.sim_env.route_obj.route_props.paths_matrix = self.sim_env.rl_help_obj.rl_props.chosen_path_list
@@ -126,9 +127,7 @@ class SimEnvUtils:
         slots_needed, source_obs, dest_obs, super_channels = self.sim_env.sim_env_helper.get_spectrum_obs(
             curr_req=curr_req)
         obs_dict = {
-            'slots_needed': slots_needed,
             'source': source_obs,
             'destination': dest_obs,
-            'super_channels': super_channels,
         }
         return obs_dict
