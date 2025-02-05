@@ -67,7 +67,7 @@ def save_model(sim_dict: dict, env: object, model):
     if '_' not in model_type:
         raise ValueError(
             f"Algorithm info '{model_type}' must include both algorithm and agent type (e.g., 'ppo_path').")
-    # TODO: (drl_path_agents) If agent type isn't used, remove it
+
     algorithm = sim_dict.get(model_type)
     save_fp = os.path.join(
         'logs',

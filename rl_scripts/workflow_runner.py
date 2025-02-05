@@ -13,7 +13,6 @@ from rl_scripts.helpers.hyperparam_helpers import get_optuna_hyperparams
 from rl_scripts.args.general_args import VALID_PATH_ALGORITHMS, VALID_CORE_ALGORITHMS, VALID_DRL_ALGORITHMS
 
 
-# TODO: (drl_path_agents) Naming convention
 def _run_drl_training(env: object, sim_dict: dict):
     """
     Trains a deep reinforcement learning model with StableBaselines3.
@@ -71,7 +70,6 @@ def run_testing(env: object, sim_dict: dict):
     """
     model = get_trained_model(env=env, sim_dict=sim_dict)
     # TODO: (drl_path_agents) Getting a trained model is no longer functional
-    # TODO: Need to determine drl agent or not here
     run_iters(env=env, sim_dict=sim_dict, is_training=False, model=model)
 
 

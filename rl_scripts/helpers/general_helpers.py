@@ -5,7 +5,7 @@ from src.spectrum_assignment import SpectrumAssignment
 from helper_scripts.sim_helpers import find_path_len, get_path_mod, get_hfrag
 from helper_scripts.sim_helpers import find_path_cong, classify_cong, find_core_cong
 
-from rl_scripts.args.general_args import VALID_PATH_ALGORITHMS, VALID_CORE_ALGORITHMS
+from rl_scripts.args.general_args import VALID_PATH_ALGORITHMS
 from arg_scripts.sdn_args import SDNProps
 
 
@@ -157,7 +157,6 @@ class CoreUtilHelpers:
         else:
             forced_index = None
 
-        # TODO: (drl_path_agents) Fix inconsistency e.g., if route object isn't the same in sdn controller
         force_mod_format = self.route_obj.route_props.mod_formats_matrix[0]
         self.engine_obj.handle_arrival(curr_time=curr_time, force_route_matrix=self.rl_props.chosen_path_list,
                                        force_core=self.rl_props.core_index,
@@ -175,7 +174,6 @@ class CoreUtilHelpers:
         :return: If there are available spectral slots.
         :rtype: bool
         """
-        # TODO: (drl_path_agents) Fix this in RL merge
         route_props = None
         spectrum_obj = SpectrumAssignment(engine_props=engine_props, sdn_props=sdn_props, route_props=route_props)
 
@@ -294,7 +292,7 @@ class SimEnvHelpers:
                 self.sim_env.rl_props.chosen_path_index = path_index
                 break
 
-    def handle_test_train_obs(self, curr_req: dict):
+    def handle_test_train_obs(self, curr_req: dict):  # pylint: disable=unused-argument
         """
         Handles path and core selection during training/testing phases based on the current request.
 
@@ -304,17 +302,16 @@ class SimEnvHelpers:
         if self.sim_env.sim_dict['is_training']:
             if self.sim_env.sim_dict['path_algorithm'] in VALID_PATH_ALGORITHMS:
                 self.sim_env.step_helper.handle_path_train_test()
-            elif self.sim_env.sim_dict['core_algorithm'] in VALID_CORE_ALGORITHMS:
-                self.sim_env.step_helper.handle_core_train()
-            elif self.sim_env.sim_dict['spectrum_algorithm'] not in ('first_fit', 'best_fit', 'last_fit'):
-                self.sim_env.step_helper.handle_spectrum_train()
             else:
                 raise NotImplementedError
         else:
             self.sim_env.step_helpers.handle_path_train_test()
-            self.sim_env.core_agent.get_core()
 
     def get_drl_obs(self):
+        """
+        Creates observation data for Deep Reinforcement Learning (DRL) in a graph-based
+        environment.
+        """
         source_obs = np.zeros(self.sim_env.rl_props.num_nodes)
         source_obs[self.sim_env.rl_props.source] = 1.0
         dest_obs = np.zeros(self.sim_env.rl_props.num_nodes)
@@ -331,7 +328,6 @@ def determine_model_type(sim_dict: dict) -> str:
     :param sim_dict: A dictionary containing simulation configuration.
     :return: A string representing the model type ('path_algorithm', 'core_algorithm', 'spectrum_algorithm').
     """
-    # TODO: (drl_path_agents) Inconsistency here
     if 's1' in sim_dict:
         sim_dict = sim_dict['s1']
     if sim_dict.get('path_algorithm') is not None:

@@ -43,8 +43,7 @@ def setup_ppo(env: object, device: str):
     yaml_dict = parse_yaml_file(yaml_path)
     env_name = list(yaml_dict.keys())[0]
     kwargs_dict = eval(yaml_dict[env_name]['policy_kwargs'])  # pylint: disable=eval-used
-    # TODO: (drl_path_agents) shape is not defined?
-    # TODO: Observation space seems to be none
+
     model = PPO(env=env, device=device, policy=yaml_dict[env_name]['policy'],
                 n_steps=yaml_dict[env_name]['n_steps'],
                 batch_size=yaml_dict[env_name]['batch_size'], gae_lambda=yaml_dict[env_name]['gae_lambda'],

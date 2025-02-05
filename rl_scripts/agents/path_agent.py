@@ -121,7 +121,7 @@ class PathAgent(BaseAgent):
         self.rl_props.chosen_path_list = route_obj.route_props.paths_matrix[self.rl_props.chosen_path_index]
 
     def _drl_route(self, route_obj: object, action: int):
-        if self.algorithm in  ('ppo', 'a2c'):
+        if self.algorithm in ('ppo', 'a2c'):
             self.rl_props.chosen_path_index = action
             self.rl_props.chosen_path_list = route_obj.route_props.paths_matrix[action]
         else:

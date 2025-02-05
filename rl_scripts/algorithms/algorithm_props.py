@@ -97,9 +97,8 @@ class BanditProps:
         return f"BanditProps({self.__dict__})"
 
 
-# TODO: (drl_path_agents) Add support for DRL agents
 class PPOProps:
     """
     Not implemented at this time.
     """
-    pass  # pylint: disable=unnecessary-pass
+    raise NotImplementedError

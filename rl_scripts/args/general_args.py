@@ -1,7 +1,4 @@
-
-
 EPISODIC_STRATEGIES = ['exp_decay', 'linear_decay']
-
 
 VALID_PATH_ALGORITHMS = [
     'q_learning',
@@ -20,7 +17,6 @@ VALID_DRL_ALGORITHMS = [
     'ppo',
 ]
 
-# TODO: (drl_path_agents) Detect if running on Unity cluster or locally
 LOCAL_RL_COMMANDS_LIST = [
     # 'rm -rf venvs/unity_venv/venv',
     # 'module load python/3.11.0',

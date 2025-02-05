@@ -39,7 +39,6 @@ class SimEnvUtils:
 
         return terminated
 
-    # TODO: (drl_path_agents) I don't think this is being called when it's supposed to
     def handle_test_train_step(self, was_allocated: bool, path_length: int):
         """
         Handles updates specific to training or testing during the current simulation step.
@@ -123,8 +122,6 @@ class SimEnvUtils:
         self.sim_env.rl_props.destination = int(curr_req['destination'])
         self.sim_env.rl_props.mock_sdn_dict = self.sim_env.rl_help_obj.update_mock_sdn(curr_req=curr_req)
 
-        # TODO: (drl_path_agents) Call this in step instead
-        # _ = self.sim_env.sim_env_helper.handle_test_train_obs(curr_req=curr_req)
         source_obs, dest_obs = self.sim_env.sim_env_helper.get_drl_obs()
         obs_dict = {
             'source': source_obs,

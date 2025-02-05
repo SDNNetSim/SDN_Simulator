@@ -4,8 +4,6 @@ from rl_scripts.utils.env_util import SimEnvUtils
 from rl_scripts.helpers.setup_helpers import setup_rl_sim, SetupHelper
 from rl_scripts.helpers.general_helpers import CoreUtilHelpers, SimEnvHelpers
 from rl_scripts.agents.path_agent import PathAgent
-from rl_scripts.agents.core_agent import CoreAgent
-from rl_scripts.agents.spectrum_agent import SpectrumAgent
 from rl_scripts.helpers.drl_helpers import get_obs_space, get_action_space
 
 from rl_scripts.algorithms.algorithm_props import RLProps
@@ -66,7 +64,6 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         self.rl_props.arrival_list = list()
         self.rl_props.depart_list = list()
 
-        # TODO: fixme statement breaks for DRL (drl_path_agents)
         if self.optimize is None:
             self.iteration = 0
             self.setup()
@@ -173,7 +170,5 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
     def _setup_agents(self):
         self.path_agent = PathAgent(path_algorithm=self.sim_dict['path_algorithm'], rl_props=self.rl_props,
                                     rl_help_obj=self.rl_help_obj)
-        self.core_agent = CoreAgent(core_algorithm=self.sim_dict['core_algorithm'], rl_props=self.rl_props,
-                                    rl_help_obj=self.rl_help_obj)
-        self.spectrum_agent = SpectrumAgent(spectrum_algorithm=self.sim_dict['spectrum_algorithm'],
-                                            rl_props=self.rl_props)
+        self.core_agent = None
+        self.spectrum_agent = None
