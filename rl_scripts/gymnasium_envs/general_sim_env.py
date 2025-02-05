@@ -6,6 +6,7 @@ from rl_scripts.helpers.general_helpers import CoreUtilHelpers, SimEnvHelpers
 from rl_scripts.agents.path_agent import PathAgent
 from rl_scripts.agents.core_agent import CoreAgent
 from rl_scripts.agents.spectrum_agent import SpectrumAgent
+from rl_scripts.helpers.drl_helpers import get_obs_space, get_action_space
 
 from arg_scripts.rl_args import RLProps
 
@@ -49,9 +50,8 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         # Used to get config variables into the observation space
         self.reset(options={'save_sim': False})
 
-        # TODO: (drl_path_agent) Here
-        self.observation_space = self.spectrum_agent.get_obs_space()
-        self.action_space = self.spectrum_agent.get_action_space()
+        self.observation_space = get_obs_space(sim_dict=sim_dict, rl_props=self.rl_props, engine_obj=self.engine_obj)
+        self.action_space = get_action_space(sim_dict=sim_dict, rl_props=self.rl_props, engine_obj=self.engine_obj)
 
     def reset(self, seed: int = None, options: dict = None):  # pylint: disable=arguments-differ
         """

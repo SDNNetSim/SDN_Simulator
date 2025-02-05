@@ -1,24 +1,9 @@
 import os
 
+from helper_scripts.sim_helpers import parse_yaml_file
+
+from rl_scripts.helpers.general_helpers import determine_model_type
 from rl_scripts.args.general_args import ALGORITHM_REGISTRY
-
-
-def determine_model_type(sim_dict: dict) -> str:
-    """
-    Determines the type of agent being used based on the provided simulation dictionary.
-
-    :param sim_dict: A dictionary containing simulation configuration.
-    :return: A string representing the model type ('path_algorithm', 'core_algorithm', 'spectrum_algorithm').
-    """
-    if sim_dict.get('path_algorithm') is not None:
-        return 'path_algorithm'
-    if sim_dict.get('core_algorithm') is not None:
-        return 'core_algorithm'
-    if sim_dict.get('spectrum_algorithm') is not None:
-        return 'spectrum_algorithm'
-
-    raise ValueError("No valid algorithm type found in sim_dict. "
-                     "Ensure 'path_algorithm', 'core_algorithm', or 'spectrum_algorithm' is set.")
 
 
 def get_model(sim_dict: dict, device: str, env: object):
@@ -30,17 +15,18 @@ def get_model(sim_dict: dict, device: str, env: object):
     :param env: The reinforcement learning environment.
     :return: A tuple containing the RL model and a configuration dictionary for the environment.
     """
-    yaml_dict = {}
-    env_name = None
-
     model_type = determine_model_type(sim_dict=sim_dict)
     algorithm = sim_dict.get(model_type)
 
     if algorithm not in ALGORITHM_REGISTRY:
         raise NotImplementedError(f"Algorithm '{algorithm}' is not supported.")
 
+    yaml_file = os.path.join('sb3_scripts', 'yml', f'{algorithm}.yml')
+    yaml_dict = parse_yaml_file(yaml_file=yaml_file)
     model = ALGORITHM_REGISTRY[algorithm]['setup'](env=env, device=device)
-    return model, yaml_dict.get(env_name, {})
+
+    env_name = list(yaml_dict.keys())[0]
+    return model, yaml_dict[env_name]
 
 
 def get_trained_model(env: object, sim_dict: dict):

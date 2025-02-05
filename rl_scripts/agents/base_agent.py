@@ -41,7 +41,7 @@ class BaseAgent:
         elif self.algorithm == 'ucb_bandit':
             self.algorithm_obj = UCBBandit(rl_props=self.rl_props, engine_props=self.engine_props, is_path=is_path)
         elif self.algorithm == 'ppo':
-            self.algorithm_obj = PPO(rl_props=self.rl_props, engine_props=self.engine_props)
+            self.algorithm_obj = PPO(rl_props=self.rl_props, engine_obj=self.engine_props)
         else:
             raise NotImplementedError
 

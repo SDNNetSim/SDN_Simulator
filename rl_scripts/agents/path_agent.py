@@ -1,5 +1,6 @@
 import numpy as np
 
+from arg_scripts.rl_args import VALID_DRL_ALGORITHMS
 from rl_scripts.agents.base_agent import BaseAgent
 
 from rl_scripts.args.general_args import EPISODIC_STRATEGIES
@@ -76,6 +77,9 @@ class PathAgent(BaseAgent):
             self.algorithm_obj.update(reward=reward, arm=self.rl_props.chosen_path_index, iteration=iteration)
         elif self.algorithm == 'ucb_bandit':
             self.algorithm_obj.update(reward=reward, arm=self.rl_props.chosen_path_index, iteration=iteration)
+        # StableBaselines3 will handle all algorithm updates
+        elif self.algorithm in VALID_DRL_ALGORITHMS:
+            pass
         else:
             raise NotImplementedError
 

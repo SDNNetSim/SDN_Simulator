@@ -11,9 +11,9 @@ class PPO:
     of the reinforcement learning environment and its engine.
     """
 
-    def __init__(self, rl_props: object, engine_props: object):
+    def __init__(self, rl_props: object, engine_obj: object):
         self.rl_props = rl_props
-        self.engine_props = engine_props
+        self.engine_obj = engine_obj
 
     def get_obs_space(self):
         """
@@ -30,7 +30,7 @@ class PPO:
         """
         Get the action space for the environment.
         """
-        action_space = spaces.Discrete(self.engine_props.k_paths)
+        action_space = spaces.Discrete(self.engine_obj.engine_props['k_paths'])
         return action_space
 
     @staticmethod

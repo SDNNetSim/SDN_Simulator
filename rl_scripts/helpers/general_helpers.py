@@ -338,3 +338,25 @@ class SimEnvHelpers:
         dest_obs[self.sim_env.rl_props.destination] = 1.0
 
         return slots_needed, source_obs, dest_obs, super_channels
+
+
+# TODO: (drl_path_agents) Only works for s1
+def determine_model_type(sim_dict: dict) -> str:
+    """
+    Determines the type of agent being used based on the provided simulation dictionary.
+
+    :param sim_dict: A dictionary containing simulation configuration.
+    :return: A string representing the model type ('path_algorithm', 'core_algorithm', 'spectrum_algorithm').
+    """
+    # TODO: (drl_path_agents) Inconsistency here
+    if 's1' in sim_dict:
+        sim_dict = sim_dict['s1']
+    if sim_dict.get('path_algorithm') is not None:
+        return 'path_algorithm'
+    if sim_dict.get('core_algorithm') is not None:
+        return 'core_algorithm'
+    if sim_dict.get('spectrum_algorithm') is not None:
+        return 'spectrum_algorithm'
+
+    raise ValueError("No valid algorithm type found in sim_dict. "
+                     "Ensure 'path_algorithm', 'core_algorithm', or 'spectrum_algorithm' is set.")

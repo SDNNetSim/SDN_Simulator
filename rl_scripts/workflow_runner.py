@@ -91,12 +91,8 @@ def run(env: object, sim_dict: dict):
     if sim_dict['is_training']:
         # Print info function should already error check valid input, no need to raise an error here
         if sim_dict['path_algorithm'] in VALID_PATH_ALGORITHMS or sim_dict['core_algorithm'] in VALID_CORE_ALGORITHMS:
-            run_iters(
-                env=env,
-                sim_dict=sim_dict,
-                is_training=True,
-                drl_agent=sim_dict['path_algorithm'] in VALID_DRL_ALGORITHMS
-            )
+            run_iters(env=env, sim_dict=sim_dict, is_training=True,
+                      drl_agent=sim_dict['path_algorithm'] in VALID_DRL_ALGORITHMS)
         else:
             raise NotImplementedError
     else:
