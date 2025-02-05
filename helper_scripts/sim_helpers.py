@@ -590,35 +590,37 @@ def parse_yaml_file(yaml_file: str):
             return exc
 
 
-def get_arrival_rates(arrival_dict: dict):
+def get_erlang_vals(sim_dict: dict):
     """
     Generate a list of arrival rates based on the configuration dictionary.
 
-    :param arrival_dict: The configuration dictionary containing values for generating the arrival rates.
+    :param sim_dict: The simulation param dictionary.
     :return: A list of arrival rates generated from the configuration.
     :rtype: list
     """
-    start = int(arrival_dict['start'])
-    stop = int(arrival_dict['stop'])
-    step = int(arrival_dict['step'])
+    start = int(sim_dict['erlang_start'])
+    stop = int(sim_dict['erlang_stop'])
+    step = int(sim_dict['erlang_step'])
 
     return list(range(start, stop + 1, step))
 
 
-def run_simulation_for_arrival_rates(env, arrival_list: list, run_func):
+def run_simulation_for_erlangs(env, erlang_list: list, sim_dict: dict, run_func):
     """
     Run the simulation for each arrival rate in the given list.
 
     :param env: The simulation environment instance.
-    :param arrival_list: A list of arrival rates to simulate.
+    :param erlang_list: A list of traffic volumes (erlangs) to simulate.
+    :param sim_dict: The simulation properties dictionary.
     :param run_func: The function to run a simulation.
     :return: The mean of total rewards from all simulations.
     :rtype: float
     """
     total_rewards = []
-    for arrival_rate in arrival_list:
-        env.engine_obj.engine_props['erlang'] = arrival_rate / env.sim_dict['holding_time']
-        env.engine_obj.engine_props['arrival_rate'] = arrival_rate * env.sim_dict['cores_per_link']
+    for erlang in erlang_list:
+        env.engine_obj.engine_props['erlang'] = erlang
+        env.engine_obj.engine_props['arrival_rate'] = sim_dict['cores_per_link'] * erlang
+        env.engine_obj.engine_props['arrival_rate'] /= sim_dict['holding_time']
         run_func(env=env, sim_dict=env.sim_dict)
         sum_returns = np.sum(env.path_agent.reward_penalty_list)
         total_rewards.append(sum_returns)

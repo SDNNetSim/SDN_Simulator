@@ -3,7 +3,7 @@ import os
 import optuna
 
 from helper_scripts.sim_helpers import modify_multiple_json_values
-from helper_scripts.sim_helpers import get_arrival_rates, run_simulation_for_arrival_rates, save_study_results
+from helper_scripts.sim_helpers import get_erlang_vals, run_simulation_for_erlangs, save_study_results
 from rl_scripts.helpers.rl_zoo_helpers import run_rl_zoo
 from rl_scripts.helpers.setup_helpers import print_info
 from rl_scripts.model_manager import get_trained_model, get_model, save_model
@@ -110,8 +110,8 @@ def run_optuna_study(env, sim_dict):
         file_path = os.path.join('data', 'input', sim_dict['network'], sim_dict['date'],
                                  sim_dict['sim_start'], 'sim_input_s1.json')
         modify_multiple_json_values(file_path=file_path, update_list=update_list)
-        arrival_list = get_arrival_rates(arrival_dict=sim_dict['arrival_dict'])
-        mean_reward = run_simulation_for_arrival_rates(env=env, arrival_list=arrival_list, run_func=run)
+        erlang_list = get_erlang_vals(sim_dict=sim_dict)
+        mean_reward = run_simulation_for_erlangs(env=env, erlang_list=erlang_list, sim_dict=sim_dict, run_func=run)
         trial.set_user_attr("sim_start_time", sim_dict['sim_start'])
         return mean_reward
 
