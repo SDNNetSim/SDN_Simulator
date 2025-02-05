@@ -101,4 +101,4 @@ class PPOProps:
     """
     Not implemented at this time.
     """
-    raise NotImplementedError
+    pass

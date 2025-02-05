@@ -1,3 +1,4 @@
+from rl_scripts.args.general_args import VALID_PATH_ALGORITHMS
 from rl_scripts.helpers.general_helpers import determine_model_type
 from rl_scripts.args.registry_args import ALGORITHM_REGISTRY
 
@@ -17,6 +18,10 @@ def get_algorithm_instance(sim_dict: dict, rl_props: object, engine_obj: object)
         raise ValueError("Algorithm info must include both algorithm and agent type (e.g., 'ppo_path').")
     algorithm = sim_dict['s1'].get(model_type)
 
+    # Non-DRL case, skip
+    if algorithm in VALID_PATH_ALGORITHMS and algorithm not in ALGORITHM_REGISTRY:
+        return None
+
     if algorithm not in ALGORITHM_REGISTRY:
         raise NotImplementedError(f"Algorithm '{algorithm}' is not registered.")
 
@@ -35,6 +40,9 @@ def get_obs_space(sim_dict: dict, rl_props: object, engine_obj: object):
     :return: Observation space as defined by the algorithm.
     """
     algorithm_instance = get_algorithm_instance(sim_dict=sim_dict, rl_props=rl_props, engine_obj=engine_obj)
+    if algorithm_instance is None:
+        return None
+
     return algorithm_instance.get_obs_space()
 
 
@@ -49,4 +57,7 @@ def get_action_space(sim_dict: dict, rl_props: object, engine_obj: object):
     :return: Action space as defined by the algorithm.
     """
     algorithm_instance = get_algorithm_instance(sim_dict=sim_dict, rl_props=rl_props, engine_obj=engine_obj)
+    if algorithm_instance is None:
+        return None
+
     return algorithm_instance.get_action_space()
