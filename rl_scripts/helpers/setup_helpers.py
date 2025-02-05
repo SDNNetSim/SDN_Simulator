@@ -13,7 +13,7 @@ from helper_scripts.sim_helpers import parse_yaml_file, get_start_time
 from config_scripts.parse_args import parse_args
 from config_scripts.setup_config import read_config
 
-from arg_scripts.rl_args import VALID_PATH_ALGORITHMS, VALID_CORE_ALGORITHMS
+from rl_scripts.args.general_args import VALID_PATH_ALGORITHMS, VALID_CORE_ALGORITHMS
 
 
 def setup_rl_sim():

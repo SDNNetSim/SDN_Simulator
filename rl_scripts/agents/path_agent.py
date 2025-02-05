@@ -1,6 +1,6 @@
 import numpy as np
 
-from arg_scripts.rl_args import VALID_DRL_ALGORITHMS
+from rl_scripts.args.general_args import VALID_DRL_ALGORITHMS
 from rl_scripts.agents.base_agent import BaseAgent
 
 from rl_scripts.args.general_args import EPISODIC_STRATEGIES

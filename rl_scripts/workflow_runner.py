@@ -8,9 +8,9 @@ from rl_scripts.helpers.rl_zoo_helpers import run_rl_zoo
 from rl_scripts.helpers.setup_helpers import print_info
 from rl_scripts.model_manager import get_trained_model, get_model, save_model
 
-from arg_scripts.rl_args import get_optuna_hyperparams
+from rl_scripts.helpers.hyperparam_helpers import get_optuna_hyperparams
 
-from arg_scripts.rl_args import VALID_PATH_ALGORITHMS, VALID_CORE_ALGORITHMS, VALID_DRL_ALGORITHMS
+from rl_scripts.args.general_args import VALID_PATH_ALGORITHMS, VALID_CORE_ALGORITHMS, VALID_DRL_ALGORITHMS
 
 
 # TODO: (drl_path_agents) Naming convention

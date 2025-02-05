@@ -1,6 +1,6 @@
 import subprocess
 
-from arg_scripts.rl_args import LOCAL_RL_COMMANDS_LIST
+from rl_scripts.args.general_args import LOCAL_RL_COMMANDS_LIST
 
 
 # TODO: (drl_path_agents) Update, this only works for a spectrum agent

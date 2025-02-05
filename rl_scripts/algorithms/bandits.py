@@ -4,7 +4,7 @@ import json
 import numpy as np
 
 from helper_scripts.os_helpers import create_dir
-from arg_scripts.rl_args import BanditProps
+from rl_scripts.algorithms.algorithm_props import BanditProps
 
 
 def load_model(train_fp: str):

@@ -3,7 +3,7 @@ import json
 import networkx as nx
 import numpy as np
 
-from arg_scripts.rl_args import QProps
+from rl_scripts.algorithms.algorithm_props import QProps
 from helper_scripts.sim_helpers import (
     find_path_cong, classify_cong, calc_matrix_stats, find_core_cong
 )

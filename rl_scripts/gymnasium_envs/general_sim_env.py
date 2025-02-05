@@ -8,7 +8,7 @@ from rl_scripts.agents.core_agent import CoreAgent
 from rl_scripts.agents.spectrum_agent import SpectrumAgent
 from rl_scripts.helpers.drl_helpers import get_obs_space, get_action_space
 
-from arg_scripts.rl_args import RLProps
+from rl_scripts.algorithms.algorithm_props import RLProps
 
 
 class SimEnv(gym.Env):  # pylint: disable=abstract-method
