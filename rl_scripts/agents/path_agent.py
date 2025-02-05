@@ -120,13 +120,10 @@ class PathAgent(BaseAgent):
         self.rl_props.chosen_path_index = self.algorithm_obj.select_path_arm(source=int(source), dest=int(dest))
         self.rl_props.chosen_path_list = route_obj.route_props.paths_matrix[self.rl_props.chosen_path_index]
 
-    # TODO: (drl_path_agents) Let's do something similar to the other methods here
-    def _drl_route(self):
-        if self.algorithm == 'ppo':
-            # Mock path, this will be handled in SB3 but for structural purposes we must do it on
-            # a reset here (first call to the Env class)
-            self.rl_props.chosen_path_index = 0
-            self.rl_props.chosen_path_list = ['0', '1']
+    def _drl_route(self, route_obj: object, action: int):
+        if self.algorithm in  ('ppo', 'a2c'):
+            self.rl_props.chosen_path_index = action
+            self.rl_props.chosen_path_list = route_obj.route_props.paths_matrix[action]
         else:
             raise NotImplementedError
 
@@ -139,6 +136,6 @@ class PathAgent(BaseAgent):
         elif self.algorithm in ('epsilon_greedy_bandit', 'thompson_sampling_bandit', 'ucb_bandit'):
             self._bandit_route(route_obj=kwargs['route_obj'])
         elif self.algorithm in ('ppo', 'a2c'):
-            self._drl_route()
+            self._drl_route(route_obj=kwargs['route_obj'], action=kwargs['action'])
         else:
             raise NotImplementedError

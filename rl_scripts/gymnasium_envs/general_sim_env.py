@@ -105,14 +105,15 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         self.rl_help_obj.engine_obj = self.engine_obj
         self.rl_help_obj.route_obj = self.route_obj
 
-    def step(self, action: list):
+    def step(self, action: int):
         """
         Handles a single time step in the simulation.
 
-        :param action: A list of actions from the DRL agent.
+        :param action: An int representing the action to take.
         :return: The new observation, reward, if terminated, if truncated, and misc. info.
         :rtype: tuple
         """
+        self.step_helper.handle_step(action=action, is_drl_agent=self.engine_obj.engine_props['is_drl_agent'])
         req_info_dict = self.rl_props.arrival_list[self.rl_props.arrival_count]
         req_id = req_info_dict['req_id']
         bandwidth = req_info_dict['bandwidth']
@@ -126,9 +127,10 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         self.step_helper.handle_test_train_step(was_allocated=was_allocated, path_length=path_length)
         self.rl_help_obj.update_snapshots()
 
-        # TODO (drl_path_agents) Spectrum no longer relates to only the drl reward
-        # drl_reward = self.spectrum_agent.get_reward(was_allocated=was_allocated)
-        drl_reward = 1.0
+        if was_allocated:
+            drl_reward = self.engine_obj.engine_props['reward']
+        else:
+            drl_reward = self.engine_obj.engine_props['penalty']
 
         self.rl_props.arrival_count += 1
         terminated = self.step_helper.check_terminated()

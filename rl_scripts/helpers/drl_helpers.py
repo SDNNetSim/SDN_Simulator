@@ -3,6 +3,7 @@ from rl_scripts.args.general_args import ALGORITHM_REGISTRY
 
 
 # TODO: (drl_path_agents) Only works for 's1'
+# TODO: (drl_path_agents) We need to return the model here to use it...What about model.learn?
 def get_algorithm_instance(sim_dict: dict, rl_props: object, engine_obj: object):
     """
     Retrieve an instance of the algorithm class associated with the model type.

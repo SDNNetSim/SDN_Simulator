@@ -251,11 +251,15 @@ class SimEnvHelpers:
         """
         self.sim_env = sim_env
 
-    def update_helper_obj(self, action: list, bandwidth: str):
+    def update_helper_obj(self, action: int, bandwidth: str):
         """
         Updates the helper object with new actions and configurations.
         """
-        self.sim_env.rl_help_obj.path_index = self.sim_env.rl_props.path_index
+        if self.sim_env.engine_obj.engine_props['is_drl_agent']:
+            self.sim_env.rl_help_obj.path_index = action
+        else:
+            self.sim_env.rl_help_obj.path_index = self.sim_env.rl_props.path_index
+
         self.sim_env.rl_help_obj.core_num = self.sim_env.rl_props.core_index
 
         if self.sim_env.sim_dict['spectrum_algorithm'] in ('dqn', 'ppo', 'a2c'):
@@ -310,34 +314,13 @@ class SimEnvHelpers:
             self.sim_env.step_helpers.handle_path_train_test()
             self.sim_env.core_agent.get_core()
 
-    # fixme: (drl_path_agents)
-    def get_spectrum_obs(self, curr_req: dict):  # pylint: disable=unused-argument
-        """
-        Generates the spectrum observation for the given request.
-
-        Returns:
-            Spectrum-related observation components.
-        """
-        # TODO: (drl_path_agents) Add logic for full spectrum assignment, skipping penalty for now
-        # path_mod = self._handle_test_train_obs(curr_req=curr_req)
-        # if path_mod is not False:
-        #     slots_needed = curr_req['mod_formats'][path_mod]['slots_needed']
-        # super_channels, no_penalty = self.rl_help_obj.get_super_channels(slots_needed=slots_needed,
-        #                                                                  num_channels=self.rl_props[
-        #                                                                      'super_channel_space'])
-        # No penalty for DRL agent, mistake not made by it
-        # else:
-        slots_needed = -1
-        no_penalty = True
-        super_channels = np.array([100.0, 100.0, 100.0])  # Placeholder values
-
-        self.sim_env.spectrum_agent.no_penalty = no_penalty
+    def get_drl_obs(self):
         source_obs = np.zeros(self.sim_env.rl_props.num_nodes)
         source_obs[self.sim_env.rl_props.source] = 1.0
         dest_obs = np.zeros(self.sim_env.rl_props.num_nodes)
         dest_obs[self.sim_env.rl_props.destination] = 1.0
 
-        return slots_needed, source_obs, dest_obs, super_channels
+        return source_obs, dest_obs
 
 
 # TODO: (drl_path_agents) Only works for s1

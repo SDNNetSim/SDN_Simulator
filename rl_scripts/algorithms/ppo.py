@@ -32,17 +32,3 @@ class PPO:
         """
         action_space = spaces.Discrete(self.engine_obj.engine_props['k_paths'])
         return action_space
-
-    @staticmethod
-    def get_reward(was_allocated: bool):
-        """
-        Gets the reward for the ppo path agent.
-
-        :param was_allocated: If the request was allocated or not.
-        :return: The reward.
-        :rtype: float
-        """
-        if not was_allocated:
-            return -1.0
-
-        return 1.0

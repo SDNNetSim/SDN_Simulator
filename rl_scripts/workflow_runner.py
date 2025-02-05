@@ -43,19 +43,15 @@ def run_iters(env: object, sim_dict: dict, is_training: bool, drl_agent: bool, m
     while True:
         if is_training:
             if drl_agent:
-                # TODO: (drl_path_agents) model used to be passed here
+                env.engine_obj.engine_props['is_drl_agent'] = True
                 _run_drl_training(env=env, sim_dict=sim_dict)
-                # StableBaselines3 Handles all training
+                # StableBaselines3 Handles all training, we can terminate here
                 is_terminated, is_truncated = True, True
             else:
-                # TODO: (drl_path_agents) Improve this logic
-                # Note that we are mocking an action here for consistency with our own agents and agents from SB3
-                obs, _, is_terminated, is_truncated, _ = env.step([0])
-        # TODO: (drl_path_agents) Is this logic ok?
+                env.engine_obj.engine_props['is_drl_agent'] = False
+                obs, _, is_terminated, is_truncated, _ = env.step(0)
         else:
-            # TODO: Implement (drl_path_agents)
             action, _states = model.predict(obs)
-            # action = [0]
             obs, _, is_terminated, is_truncated, _ = env.step(action)
 
         if completed_episodes >= sim_dict['max_iters']:

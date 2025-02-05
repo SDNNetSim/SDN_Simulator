@@ -66,17 +66,17 @@ class SimEnvUtils:
                                            net_spec_dict=self.sim_env.engine_obj.net_spec_dict,
                                            iteration=self.sim_env.iteration)
 
-    def handle_path_train_test(self):
+    def handle_step(self, action: int, is_drl_agent: bool):
         """
         Handles path-related decisions during training and testing phases.
         """
-        if 'bandit' in self.sim_env.sim_dict['path_algorithm']:
+        # Q-learning has access to its own paths, everything else needs the route object
+        if 'bandit' in self.sim_env.sim_dict['path_algorithm'] or is_drl_agent:
             self.sim_env.route_obj.sdn_props = self.sim_env.rl_props.mock_sdn_dict
             self.sim_env.route_obj.engine_props['route_method'] = 'k_shortest_path'
             self.sim_env.route_obj.get_route()
 
-        # TODO: (drl_path_agentas) We need access to model here to return a path
-        self.sim_env.path_agent.get_route(route_obj=self.sim_env.route_obj)
+        self.sim_env.path_agent.get_route(route_obj=self.sim_env.route_obj, action=action)
         self.sim_env.rl_help_obj.rl_props.chosen_path_list = [self.sim_env.rl_props.chosen_path_list]
         self.sim_env.route_obj.route_props.paths_matrix = self.sim_env.rl_help_obj.rl_props.chosen_path_list
         self.sim_env.rl_props.core_index = None
@@ -123,9 +123,9 @@ class SimEnvUtils:
         self.sim_env.rl_props.destination = int(curr_req['destination'])
         self.sim_env.rl_props.mock_sdn_dict = self.sim_env.rl_help_obj.update_mock_sdn(curr_req=curr_req)
 
-        _ = self.sim_env.sim_env_helper.handle_test_train_obs(curr_req=curr_req)
-        slots_needed, source_obs, dest_obs, super_channels = self.sim_env.sim_env_helper.get_spectrum_obs(
-            curr_req=curr_req)
+        # TODO: (drl_path_agents) Call this in step instead
+        # _ = self.sim_env.sim_env_helper.handle_test_train_obs(curr_req=curr_req)
+        source_obs, dest_obs = self.sim_env.sim_env_helper.get_drl_obs()
         obs_dict = {
             'source': source_obs,
             'destination': dest_obs,
