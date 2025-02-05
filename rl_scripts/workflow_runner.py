@@ -45,6 +45,8 @@ def run_iters(env: object, sim_dict: dict, is_training: bool, drl_agent: bool, m
             if drl_agent:
                 # TODO: (drl_path_agents) model used to be passed here
                 _run_drl_training(env=env, sim_dict=sim_dict)
+                # StableBaselines3 Handles all training
+                is_terminated, is_truncated = True, True
             else:
                 # TODO: (drl_path_agents) Improve this logic
                 # Note that we are mocking an action here for consistency with our own agents and agents from SB3

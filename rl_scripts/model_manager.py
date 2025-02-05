@@ -64,23 +64,17 @@ def save_model(sim_dict: dict, env: object, model):
     :param model: The trained model to be saved.
     """
     model_type = determine_model_type(sim_dict=sim_dict)
-    algorithm_info = sim_dict.get(model_type)
-
-    if '_' not in algorithm_info:
+    if '_' not in model_type:
         raise ValueError(
-            f"Algorithm info '{algorithm_info}' must include both algorithm and agent type (e.g., 'ppo_path').")
+            f"Algorithm info '{model_type}' must include both algorithm and agent type (e.g., 'ppo_path').")
     # TODO: (drl_path_agents) If agent type isn't used, remove it
-    algorithm, _ = algorithm_info.split('_', 1)
-
-    if algorithm_info in sim_dict:
-        save_fp = os.path.join(
-            'logs',
-            algorithm_info,
-            env.modified_props['network'],
-            env.modified_props['date'],
-            env.modified_props['sim_start'],
-            f"{algorithm_info}_model.zip"
-        )
-        model.save(save_fp)
-    else:
-        raise NotImplementedError(f"Algorithm '{algorithm}' is not supported for saving.")
+    algorithm = sim_dict.get(model_type)
+    save_fp = os.path.join(
+        'logs',
+        algorithm,
+        env.modified_props['network'],
+        env.modified_props['date'],
+        env.modified_props['sim_start'],
+        f"{algorithm}_model.zip"
+    )
+    model.save(save_fp)
