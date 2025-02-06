@@ -111,6 +111,5 @@ def run(sims_dict: dict):
 
 if __name__ == '__main__':
     args_dict = parse_args()
-    # TODO: Update config path in other AI scripts (drl_path_agents)
     all_sims_dict = read_config(args_dict=args_dict, config_path=args_dict['config_path'])
     run(sims_dict=all_sims_dict)

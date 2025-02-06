@@ -13,7 +13,6 @@ from helper_scripts.sim_helpers import find_path_len, find_core_cong
 from helper_scripts.os_helpers import create_dir
 
 
-# TODO: (drl_path_agents) Note that many of these dictionaries were converted to objects, this will affect saving/calculating
 class SimStats:
     """
     The SimStats class finds and stores all relevant statistics in simulations.
@@ -205,7 +204,6 @@ class SimStats:
 
     def _handle_iter_lists(self, sdn_data: object):
         for stat_key in sdn_data.stat_key_list:
-            # TODO: (drl_path_agents) This name should be changed to 'sdn_data'
             curr_sdn_data = sdn_data.get_data(key=stat_key)
             if stat_key == 'xt_list':
                 # (drl_path_agents) fixme

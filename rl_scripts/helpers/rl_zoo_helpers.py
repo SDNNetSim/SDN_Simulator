@@ -8,7 +8,6 @@ def run_rl_zoo(sim_dict: dict):
     :param sim_dict: A dictionary containing simulation configuration, including the spectrum algorithm to use.
     :raises NotImplementedError: If the specified algorithm is not implemented.
     """
-    # TODO: A lot of these arguments are hard coded (drl_path_agents)
     if sim_dict['path_algorithm'] == 'ppo':
         subprocess.run('python -m rl_zoo3.train --algo ppo --env SimEnv --conf-file '
                        './sb3_scripts/yml/ppo.yml -optimize --n-trials 5 --n-timesteps 20000', shell=True, check=True)

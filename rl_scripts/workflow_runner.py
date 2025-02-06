@@ -67,7 +67,6 @@ def run_testing(env: object, sim_dict: dict):
     :param sim_dict: A dictionary containing simulation-specific parameters (e.g., model type, paths).
     """
     model = get_trained_model(env=env, sim_dict=sim_dict)
-    # TODO: (drl_path_agents) Getting a trained model is no longer functional
     run_iters(env=env, sim_dict=sim_dict, is_training=False, model=model)
 
 
