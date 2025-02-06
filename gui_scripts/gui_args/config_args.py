@@ -109,6 +109,7 @@ SETTINGS_CONFIG_DICT = [
 GUI_DEFAULTS = {
     'supported_networks': ['USNet', 'NSFNet', 'Pan-European', 'USbackbone60'],
     'plots': ['Blocking', 'Block Reasons', 'Errors', 'Hops', 'Path Length', 'Rewards'],
+    'license_file_path': 'LICENSE'
 }
 
 
