@@ -7,7 +7,7 @@ from data_scripts.structure_data import create_network
 
 from gui_scripts.gui_helpers.topology_helpers import TopologyCanvas
 from gui_scripts.gui_helpers.general_helpers import SettingsDialog
-from gui_scripts.gui_args.config_args import GUI_DEFAULT_SETTINGS
+from gui_scripts.gui_args.config_args import GUI_DEFAULTS
 from gui_scripts.gui_helpers.dialogs import Alert
 from gui_scripts.gui_args.config_args import AlertCode
 
@@ -118,7 +118,7 @@ class MenuCreator:
         # create plot menu actions e.g. plot >, configure plotting settings, export plot, etc
         plot_submenu_obj = qtw.QMenu('Plot', plot_menu_obj)
 
-        plots = GUI_DEFAULT_SETTINGS['plots']
+        plots = GUI_DEFAULTS['plots']
         for plot_action in plots:
             action = self.menu_bar_action_handler_obj.create_plot_sm_action(plot_action)
             action.setParent(plot_submenu_obj)
@@ -191,7 +191,7 @@ class AboutDialog(qtw.QDialog):
         license_layout = qtw.QVBoxLayout(license_tab)
 
         # Read the license text from the LICENSE file
-        license_text = load_license_text("LICENSE")  # Adjust the file path as needed
+        license_text = load_license_text(GUI_DEFAULTS['license_file_path'])  # Adjust the file path as needed
         license_text_area = qtw.QPlainTextEdit(license_text)
         license_text_area.setReadOnly(True)  # Make it read-only
         license_layout.addWidget(license_text_area)
@@ -395,7 +395,7 @@ class MenuActionHandler:
         network_selection_dialog.setSizeGripEnabled(True)
         network_name, valid_net_name = network_selection_dialog.getItem(
             None, "Choose a network type:",
-            "Select Network Type", GUI_DEFAULT_SETTINGS['supported_networks'], 0, False
+            "Select Network Type", GUI_DEFAULTS['supported_networks'], 0, False
         )
 
         if valid_net_name:
