@@ -202,11 +202,12 @@ class Engine:
 
         return resp
 
-    def init_iter(self, iteration: int):
+    def init_iter(self, iteration: int, print_flag: bool = True):
         """
         Initializes an iteration.
 
         :param iteration: The current iteration number.
+        :param print_flag: Flag to determine printing iter info.
         """
         self.iteration = iteration
 
@@ -220,7 +221,7 @@ class Engine:
         except ValueError:
             pass
 
-        if iteration == 0:
+        if iteration == 0 and print_flag:
             print(f"Simulation started for Erlang: {self.engine_props['erlang']} "
                   f"simulation number: {self.engine_props['thread_num']}.")
 

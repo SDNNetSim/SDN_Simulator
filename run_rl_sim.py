@@ -15,7 +15,7 @@ def run_rl_sim():
     """
     env, sim_dict = create_environment()
 
-    if not sim_dict['optimize']:
+    if not sim_dict['optimize'] and not sim_dict['optimize_hyperparameters']:
         run(env=env, sim_dict=sim_dict)
     else:
         # For DRL only

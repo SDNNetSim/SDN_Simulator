@@ -602,7 +602,7 @@ def get_erlang_vals(sim_dict: dict):
     stop = int(sim_dict['erlang_stop'])
     step = int(sim_dict['erlang_step'])
 
-    return list(range(start, stop + 1, step))
+    return list(range(start, stop, step))
 
 
 def run_simulation_for_erlangs(env, erlang_list: list, sim_dict: dict, run_func):

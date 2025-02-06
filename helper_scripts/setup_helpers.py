@@ -1,5 +1,6 @@
 import json
 import os
+import copy
 
 from data_scripts.structure_data import create_network
 from data_scripts.generate_data import create_bw_info, create_pt
@@ -27,7 +28,8 @@ def create_input(base_fp: str, engine_props: dict):
         engine_props['mod_per_bw'] = json.load(file_object)
 
     network_dict, core_nodes_list = create_network(base_fp=base_fp, const_weight=engine_props['const_link_weight'],
-                                  net_name=engine_props['network'], is_only_core_node = engine_props['is_only_core_node'])
+                                                   net_name=engine_props['network'],
+                                                   is_only_core_node=engine_props['is_only_core_node'])
     engine_props['topology_info'] = create_pt(cores_per_link=engine_props['cores_per_link'],
                                               net_spec_dict=network_dict)
     engine_props['core_nodes'] = core_nodes_list
@@ -50,5 +52,14 @@ def save_input(base_fp: str, properties: dict, file_name: str, data_dict: dict):
     create_dir(os.path.join('data', 'output'))
 
     save_path = os.path.join(path, file_name)
+
+    save_dict = copy.deepcopy(data_dict)
+
+    if 'topology' in save_dict:
+        del save_dict['topology']
+
+    if 'callback' in save_dict:
+        del save_dict['callback']
+
     with open(save_path, 'w', encoding='utf-8') as file_path:
-        json.dump(data_dict, file_path, indent=4)
+        json.dump(save_dict, file_path, indent=4)

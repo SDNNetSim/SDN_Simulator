@@ -68,8 +68,11 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         if self.optimize is None:
             self.iteration = 0
             self.setup()
+            print_flag = False
+        else:
+            print_flag = True
 
-        self._init_props_envs()
+        self._init_props_envs(print_flag=print_flag)
         if not self.sim_dict['is_training'] and self.iteration == 0:
             self._load_models()
         if seed is None:
@@ -89,9 +92,9 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
     def _load_models(self):
         self.setup_helper.load_models()
 
-    def _init_props_envs(self):
+    def _init_props_envs(self, print_flag: bool):
         self.rl_props.arrival_count = 0
-        self.engine_obj.init_iter(iteration=self.iteration)
+        self.engine_obj.init_iter(iteration=self.iteration, print_flag=print_flag)
         self.engine_obj.create_topology()
         self.rl_help_obj.topology = self.engine_obj.topology
         self.rl_props.num_nodes = len(self.engine_obj.topology.nodes)
@@ -146,7 +149,11 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         """
         Sets up this class.
         """
-        self.optimize = self.sim_dict['optimize']
+        if self.sim_dict['optimize'] or self.sim_dict['optimize_hyperparameters']:
+            self.optimize = True
+        else:
+            self.optimize = False
+
         self.rl_props.k_paths = self.sim_dict['k_paths']
         self.rl_props.cores_per_link = self.sim_dict['cores_per_link']
         # TODO: Only support for 'c' band (drl_path_agents)
