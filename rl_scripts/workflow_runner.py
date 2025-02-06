@@ -17,7 +17,7 @@ def _run_drl_training(env: object, sim_dict: dict):
     """
     Trains a deep reinforcement learning model with StableBaselines3.
     """
-    if sim_dict['optimize_hyperparameters']:
+    if sim_dict['optimize_hyperparameters'] or sim_dict['optimize']:
         run_rl_zoo(sim_dict=sim_dict)
     else:
         model, yaml_dict = get_model(sim_dict=sim_dict, device=sim_dict['device'], env=env)
@@ -42,12 +42,10 @@ def run_iters(env: object, sim_dict: dict, is_training: bool, drl_agent: bool, m
     while True:
         if is_training:
             if drl_agent:
-                env.engine_obj.engine_props['is_drl_agent'] = True
                 _run_drl_training(env=env, sim_dict=sim_dict)
                 # StableBaselines3 Handles all training, we can terminate here
                 is_terminated, is_truncated = True, True
             else:
-                env.engine_obj.engine_props['is_drl_agent'] = False
                 obs, _, is_terminated, is_truncated, _ = env.step(0)
         else:
             action, _states = model.predict(obs)

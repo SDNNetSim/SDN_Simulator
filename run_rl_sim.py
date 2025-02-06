@@ -1,3 +1,4 @@
+from rl_scripts.args.registry_args import ALGORITHM_REGISTRY
 from rl_scripts.workflow_runner import run_optuna_study, run
 from rl_scripts.utils.gym_env_util import create_environment
 
@@ -17,7 +18,11 @@ def run_rl_sim():
     if not sim_dict['optimize']:
         run(env=env, sim_dict=sim_dict)
     else:
-        run_optuna_study(env=env, sim_dict=sim_dict)
+        # For DRL only
+        if sim_dict['path_algorithm'] in ALGORITHM_REGISTRY:
+            run(env=env, sim_dict=sim_dict)
+        else:
+            run_optuna_study(env=env, sim_dict=sim_dict)
 
 
 if __name__ == '__main__':

@@ -190,7 +190,7 @@ COMMAND_LINE_PARAMS = [
     ['path_algorithm', str, ''],
     ['core_algorithm', str, ''],
     ['spectrum_algorithm', str, ''],
-    ['optimize', str, ''],
+    # ['optimize', str, ''],
     ['optimize_hyperparameters', str, ''],
     ['reward', float, ''],
     ['penalty', float, ''],

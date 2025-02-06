@@ -23,9 +23,9 @@ python sb3_scripts/register_env.py --algo "$algo" --env-name "$env_name"
 # Append the custom environment registration to the import_envs.py file in the Stable Baselines 3 installation
 cat >>venvs/unity_venv/venv/lib/python3.11/site-packages/rl_zoo3/import_envs.py <<EOL
 
-from run_rl_sim import SimEnv
+from rl_scripts.gymnasium_envs.general_sim_env import SimEnv
 
-register(id='SimEnv', entry_point='run_rl_sim:SimEnv')
+register(id='SimEnv', entry_point='rl_scripts.gymnasium_envs.general_sim_env:SimEnv')
 EOL
 
 echo "Custom environment 'SimEnv' registered for algorithm '$algo' in Stable Baselines 3 and Gymnasium RL library."

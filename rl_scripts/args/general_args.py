@@ -16,13 +16,3 @@ VALID_CORE_ALGORITHMS = [
 VALID_DRL_ALGORITHMS = [
     'ppo',
 ]
-
-LOCAL_RL_COMMANDS_LIST = [
-    # 'rm -rf venvs/unity_venv/venv',
-    # 'module load python/3.11.0',
-    # './bash_scripts/make_venv.sh venvs/unity_venv python3.11',
-    # 'source venvs/unity_venv/venv/bin/activate',
-    # 'pip install -r requirements.txt',
-
-    # './bash_scripts/register_rl_env.sh ppo SimEnv'
-]

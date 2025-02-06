@@ -47,9 +47,10 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
 
         # Used to get config variables into the observation space
         self.reset(options={'save_sim': False})
-
-        self.observation_space = get_obs_space(sim_dict=sim_dict, rl_props=self.rl_props, engine_obj=self.engine_obj)
-        self.action_space = get_action_space(sim_dict=sim_dict, rl_props=self.rl_props, engine_obj=self.engine_obj)
+        self.observation_space = get_obs_space(sim_dict=self.sim_dict, rl_props=self.rl_props,
+                                               engine_obj=self.engine_obj)
+        self.action_space = get_action_space(sim_dict=self.sim_dict, rl_props=self.rl_props,
+                                             engine_obj=self.engine_obj)
 
     def reset(self, seed: int = None, options: dict = None):  # pylint: disable=arguments-differ
         """

@@ -16,12 +16,18 @@ def get_algorithm_instance(sim_dict: dict, rl_props: object, engine_obj: object)
 
     if '_' not in model_type:
         raise ValueError("Algorithm info must include both algorithm and agent type (e.g., 'ppo_path').")
-    algorithm = sim_dict['s1'].get(model_type)
+
+    if 's1' in sim_dict:
+        algorithm = sim_dict['s1'].get(model_type)
+    else:
+        algorithm = sim_dict.get(model_type)
 
     # Non-DRL case, skip
     if algorithm in VALID_PATH_ALGORITHMS and algorithm not in ALGORITHM_REGISTRY:
+        engine_obj.engine_props['is_drl_agent'] = False
         return None
 
+    engine_obj.engine_props['is_drl_agent'] = True
     if algorithm not in ALGORITHM_REGISTRY:
         raise NotImplementedError(f"Algorithm '{algorithm}' is not registered.")
 

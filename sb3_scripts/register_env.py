@@ -27,7 +27,7 @@ def main():
 
     register(
         id=args.env_name,
-        entry_point=f'run_rl_sim:{args.env_name}',
+        entry_point=f'rl_scripts.gymnasium_envs.general_sim_env:{args.env_name}',
     )
 
     print('\n=== Registered Environments with Gymnasium ===\n')
