@@ -13,7 +13,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Software-Defined Networking Simulator.')
 
     for args_lst in COMMAND_LINE_PARAMS:
-        argument, arg_type, arg_help = args_lst[0], args_lst[1], args_lst[2]
+        argument, arg_type, arg_help = args_lst
         parser.add_argument(f'--{argument}', type=arg_type, help=arg_help)
         parser.add_argument(f'-{argument}', type=arg_type, help=arg_help)
 
