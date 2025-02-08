@@ -1,12 +1,12 @@
 #!/bin/bash
 
-#SBATCH -p arm-preempt
-#SBATCH -c 20
+#SBATCH -p cpu-preempt
+#SBATCH -c 1
 #SBATCH -G 0
-#SBATCH --mem=40000
-#SBATCH -t 14-00:00:00
+#SBATCH --mem=16000
+#SBATCH -t 0-01:00:00
 #SBATCH -o slurm-%A_%a.out  # Output file for each task
-#SBATCH --array=0-3  # Define array size based on total combinations
+#SBATCH --array=0  # Define array size based on total combinations
 
 # This script is designed to run a reinforcement learning simulation on the Unity cluster at UMass Amherst.
 # It sets up the necessary environment, installs dependencies, registers custom environments, and runs
@@ -20,7 +20,7 @@ set -e
 cd
 # shellcheck disable=SC2164
 # Default directory
-DEFAULT_DIR="/work/pi_vinod_vokkarane_uml_edu/git/sdn_simulator/"
+DEFAULT_DIR="/work/pi_vinod_vokkarane_uml_edu/git/FUSION/"
 
 # Check for user input
 if [ -z "$1" ]; then
@@ -38,7 +38,7 @@ module load python/3.11.7
 # Activate the virtual environment
 # Create the virtual environment if it doesn't exist
 if [ ! -d "venvs/unity_venv/venv" ]; then
-  ./bash_scripts/make_venv.sh venvs/unity_venv python3.11
+  ./bash_scripts/make_unity_venv.sh venvs/unity_venv python3.11
 fi
 source venvs/unity_venv/venv/bin/activate
 
@@ -49,12 +49,12 @@ pip install -r requirements.txt
 ./bash_scripts/register_rl_env.sh ppo SimEnv
 
 # Declare arrays for parameter values
-algorithm_list=("ucb_bandit" "epsilon_greedy_bandit")
+algorithm_list=("epsilon_greedy_bandit")
 network_list=("NSFNet")
 k_paths_list=("3")
-epsilon_start_list=("0.01" "0.06" "0.1" "0.2")
-reward_list=("1" "10" "100")
-penalty_list=("-1" "-10" "-100")
+epsilon_start_list=("0.8")
+reward_list=("1")
+penalty_list=("-10")
 
 # Calculate the number of combinations
 num_algorithms=${#algorithm_list[@]}
@@ -83,6 +83,8 @@ penalty="${penalty_list[$penalty_idx]}"
 
 # Run the Python script with the extracted parameters
 python run_rl_sim.py \
+  --erlang_start 50 \
+  --erlang_end 100 \
   --network "$network" \
   --k_paths "$k" \
   --epsilon_start "$eps" \
