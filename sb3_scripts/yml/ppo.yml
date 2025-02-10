@@ -1,20 +1,20 @@
 SimEnv:
 #  normalize: true
 #  n_envs: 32
-  n_timesteps: 4000
+  n_timesteps: 5000
   policy: 'MultiInputPolicy'
-  n_steps: 128
-  batch_size: 16
-  gae_lambda: 0.92
-  gamma: 0.95
+  n_steps: 8
+  batch_size: 64
+  gae_lambda: 1.0
+  gamma: 0.99
   n_epochs: 5
-  vf_coef: 0.91
-  ent_coef: 0.0056
+  vf_coef: 0.17
+  ent_coef: 0.000085
 #  use_sde: True
-  max_grad_norm: 0.8
-  learning_rate: 0.0006
+  max_grad_norm: 0.3
+  learning_rate: 0.01
 #  sde_sample_freq: 4
-  clip_range: 0.3
+  clip_range: 0.4
   policy_kwargs: "dict(
                     ortho_init=False,
                     activation_fn=nn.ReLU,

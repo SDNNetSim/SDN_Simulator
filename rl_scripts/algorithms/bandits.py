@@ -24,9 +24,9 @@ def load_model(train_fp: str):
 
 def _get_base_fp(is_path: bool, erlang: float, cores_per_link: int):
     if is_path:
-        base_fp = f"e{erlang}_routes_c{cores_per_link}.npy"
+        base_fp = f"e{erlang}_routes_c{cores_per_link}"
     else:
-        base_fp = f"e{erlang}_cores_c{cores_per_link}.npy"
+        base_fp = f"e{erlang}_cores_c{cores_per_link}"
 
     return base_fp
 
@@ -56,9 +56,9 @@ def save_model(iteration: int, algorithm: str, self: object):
     """
     max_iters = self.engine_props['max_iters']
     rewards_matrix = self.props.rewards_matrix
-    # TODO: (drl_path_agents) Hard coded to save every 50 iterations, should be in the configuration file
-    if (iteration in (max_iters - 1, (max_iters - 1) % 50)) and \
-            (len(self.props.rewards_matrix[iteration]) == self.engine_props['num_requests']):
+
+    if (iteration % self.engine_props['save_step'] == 0 or iteration == max_iters - 1) and \
+            len(self.props.rewards_matrix[iteration]) == self.engine_props['num_requests']:
         rewards_matrix = np.array(rewards_matrix)
         rewards_arr = rewards_matrix.mean(axis=0)
 
@@ -71,7 +71,7 @@ def save_model(iteration: int, algorithm: str, self: object):
         cores_per_link = self.engine_props['cores_per_link']
         base_fp = _get_base_fp(is_path=self.is_path, erlang=erlang, cores_per_link=cores_per_link)
 
-        rewards_fp = f'rewards_{base_fp}'
+        rewards_fp = f'rewards_{base_fp}_iter_{iteration}.npy'
         save_fp = os.path.join(os.getcwd(), save_dir, rewards_fp)
         np.save(save_fp, rewards_arr)
 

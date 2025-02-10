@@ -129,9 +129,9 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         self.rl_help_obj.update_snapshots()
 
         if was_allocated:
-            drl_reward = self.engine_obj.engine_props['reward']
+            reward = self.engine_obj.engine_props['reward']
         else:
-            drl_reward = self.engine_obj.engine_props['penalty']
+            reward = self.engine_obj.engine_props['penalty']
 
         self.rl_props.arrival_count += 1
         terminated = self.step_helper.check_terminated()
@@ -139,7 +139,7 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         truncated = False
         info = self._get_info()
 
-        return new_obs, drl_reward, terminated, truncated, info
+        return new_obs, reward, terminated, truncated, info
 
     @staticmethod
     def _get_info():

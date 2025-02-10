@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 
 from src.spectrum_assignment import SpectrumAssignment
@@ -339,3 +341,15 @@ def determine_model_type(sim_dict: dict) -> str:
 
     raise ValueError("No valid algorithm type found in sim_dict. "
                      "Ensure 'path_algorithm', 'core_algorithm', or 'spectrum_algorithm' is set.")
+
+
+def save_arr(arr: np.array, sim_dict: dict, file_name: str):
+    """
+    Save a numpy array to a specific file path constructed from simulation details.
+    """
+    model_type = determine_model_type(sim_dict=sim_dict)
+    algorithm_type = sim_dict[model_type]
+
+    network, date, time = sim_dict['network'], sim_dict['date'], sim_dict['sim_start']
+    file_path = os.path.join('logs', algorithm_type, network, date, time, file_name)
+    np.save(file_path, arr)
