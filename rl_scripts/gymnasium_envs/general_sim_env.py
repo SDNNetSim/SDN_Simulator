@@ -68,7 +68,6 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         self.rl_props.depart_list = list()
 
         if self.optimize is None:
-            self.iteration = 0
             self.setup()
             print_flag = False
         else:
@@ -78,7 +77,7 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         if not self.sim_dict['is_training'] and self.iteration == 0:
             self._load_models()
         if seed is None:
-            seed = self.iteration + 1
+            seed = self.iteration
 
         self.rl_help_obj.reset_reqs_dict(seed=seed)
         obs = self.step_helper.get_obs()
@@ -95,8 +94,14 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         self.setup_helper.load_models()
 
     def _init_props_envs(self, seed: int, print_flag: bool):
+        # We want our iterations to continue to increment in engine, regardless of a new trial
+        if self.trial is not None and self.trial > 0:
+            engine_iteration = (self.trial * self.engine_obj.engine_props['max_iters']) + self.iteration
+        else:
+            engine_iteration = self.iteration
+
         self.rl_props.arrival_count = 0
-        self.engine_obj.init_iter(seed=seed, iteration=self.iteration, print_flag=print_flag)
+        self.engine_obj.init_iter(seed=seed, iteration=engine_iteration, print_flag=print_flag)
         self.engine_obj.create_topology()
         self.rl_help_obj.topology = self.engine_obj.topology
         self.rl_props.num_nodes = len(self.engine_obj.topology.nodes)

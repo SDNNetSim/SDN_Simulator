@@ -53,6 +53,7 @@ def save_model(iteration: int, algorithm: str, self: object, trial: int):
 
     :param iteration: Current iteration.
     :param algorithm: The algorithm used.
+    :param trial: Current trial number.
     :param self: The object to be saved.
     """
     max_iters = self.engine_props['max_iters']
@@ -72,7 +73,7 @@ def save_model(iteration: int, algorithm: str, self: object, trial: int):
         cores_per_link = self.engine_props['cores_per_link']
         base_fp = _get_base_fp(is_path=self.is_path, erlang=erlang, cores_per_link=cores_per_link)
 
-        rewards_fp = f'rewards_{base_fp}_iter_{iteration}.npy'
+        rewards_fp = f'rewards_{base_fp}_t{trial}_iter_{iteration}.npy'
         save_fp = os.path.join(os.getcwd(), save_dir, rewards_fp)
         np.save(save_fp, rewards_arr)
 

@@ -42,44 +42,43 @@ def run_iters(env: object, sim_dict: dict, is_training: bool, drl_agent: bool, m
     completed_episodes = 0
     completed_trials = 0
     episodic_reward = 0
-    # Same seed for multiple episodes in the same trial
-    obs, _ = env.reset(seed=completed_trials)
-
     rewards_matrix = np.zeros((sim_dict['n_trials'], sim_dict['max_iters']))
     episodic_rew_arr = np.array([])
+    obs, _ = env.reset(seed=completed_trials)
 
     while completed_trials < sim_dict['n_trials']:
         if is_training:
             if drl_agent:
                 _run_drl_training(env=env, sim_dict=sim_dict)
-                # StableBaselines3 Handles all training, we can terminate here
-                is_terminated, is_truncated = True, True
-            else:
-                obs, reward, is_terminated, is_truncated, _ = env.step(0)
+                print("Training of DRL agent completed. No trial/reward tracking required.")
+                break
+
+            obs, reward, is_terminated, is_truncated, _ = env.step(0)
         else:
             action, _states = model.predict(obs)
             obs, reward, is_terminated, is_truncated, _ = env.step(action)
 
         episodic_reward += reward
-        if completed_episodes == sim_dict['max_iters']:
-            rewards_matrix[completed_trials] = episodic_rew_arr
-            episodic_rew_arr = np.array([])
-
-            completed_trials += 1
-            completed_episodes = 0
-
-            print(f'{completed_trials} trials completed out of {sim_dict["n_trials"]}.')
-
         if is_terminated or is_truncated:
-            obs, _ = env.reset(seed=completed_trials)
             episodic_rew_arr = np.append(episodic_rew_arr, episodic_reward)
             episodic_reward = 0
             completed_episodes += 1
+            print(f"{completed_episodes} episodes completed out of {sim_dict['max_iters']}.")
 
-            print(f'{completed_episodes} episodes completed out of {sim_dict["max_iters"]}.')
+            if completed_episodes == sim_dict['max_iters']:
+                env.iteration = 0
+                env.trial += 1
+                rewards_matrix[completed_trials] = episodic_rew_arr
+                episodic_rew_arr = np.array([])
 
-    means_arr = np.mean(rewards_matrix, axis=0)
-    save_arr(arr=means_arr, sim_dict=sim_dict, file_name='average_rewards.npy')
+                completed_trials += 1
+                completed_episodes = 0
+                print(f"{completed_trials} trials completed out of {sim_dict['n_trials']}.")
+                obs, _ = env.reset(seed=completed_trials)
+
+    if not (is_training and drl_agent):
+        means_arr = np.mean(rewards_matrix, axis=0)
+        save_arr(arr=means_arr, sim_dict=sim_dict, file_name="average_rewards.npy")
 
 
 def run_testing(env: object, sim_dict: dict):

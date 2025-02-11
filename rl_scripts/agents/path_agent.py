@@ -57,8 +57,12 @@ class PathAgent(BaseAgent):
         :param trial: The current trial.
         :param iteration: The current iteration.
         """
-        if self.hyperparam_obj.iteration >= self.engine_props['max_iters']:
+        # StableBaselines3 will handle all algorithm updates
+        if self.algorithm in VALID_DRL_ALGORITHMS:
             return
+
+        if self.hyperparam_obj.iteration >= self.engine_props['max_iters']:
+            raise ValueError
 
         reward = self.get_reward(was_allocated=was_allocated, dynamic=self.engine_props['dynamic_reward'],
                                  core_index=None, req_id=None)
@@ -80,9 +84,6 @@ class PathAgent(BaseAgent):
         elif self.algorithm == 'ucb_bandit':
             self.algorithm_obj.update(reward=reward, arm=self.rl_props.chosen_path_index, iteration=iteration,
                                       trial=trial)
-        # StableBaselines3 will handle all algorithm updates
-        elif self.algorithm in VALID_DRL_ALGORITHMS:
-            pass
         else:
             raise NotImplementedError
 
