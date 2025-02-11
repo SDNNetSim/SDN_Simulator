@@ -40,12 +40,15 @@ def run_iters(env: object, sim_dict: dict, is_training: bool, drl_agent: bool, m
     :param model: The RL model to be used; required only if not in training mode.
     """
     completed_episodes = 0
-    obs, _ = env.reset()
-    rewards_matrix = np.zeros((sim_dict['max_iters'], sim_dict['num_requests']))
+    completed_trials = 0
     episodic_reward = 0
+    # Same seed for multiple episodes in the same trial
+    obs, _ = env.reset(seed=completed_trials)
+
+    rewards_matrix = np.zeros((sim_dict['n_trials'], sim_dict['max_iters']))
     episodic_rew_arr = np.array([])
 
-    while completed_episodes <= (sim_dict['max_iters']) - 1:
+    while completed_trials < sim_dict['n_trials']:
         if is_training:
             if drl_agent:
                 _run_drl_training(env=env, sim_dict=sim_dict)
@@ -58,14 +61,19 @@ def run_iters(env: object, sim_dict: dict, is_training: bool, drl_agent: bool, m
             obs, reward, is_terminated, is_truncated, _ = env.step(action)
 
         episodic_reward += reward
-        episodic_rew_arr = np.append(episodic_rew_arr, episodic_reward)
+        if completed_episodes == sim_dict['max_iters']:
+            rewards_matrix[completed_trials] = episodic_rew_arr
+            episodic_rew_arr = np.array([])
+
+            completed_trials += 1
+            completed_episodes = 0
+
+            print(f'{completed_trials} trials completed out of {sim_dict["n_trials"]}.')
 
         if is_terminated or is_truncated:
-            obs, _ = env.reset()
-            rewards_matrix[completed_episodes] = episodic_rew_arr
-
+            obs, _ = env.reset(seed=completed_trials)
+            episodic_rew_arr = np.append(episodic_rew_arr, episodic_reward)
             episodic_reward = 0
-            episodic_rew_arr = np.array([])
             completed_episodes += 1
 
             print(f'{completed_episodes} episodes completed out of {sim_dict["max_iters"]}.')

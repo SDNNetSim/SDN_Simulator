@@ -145,7 +145,6 @@ class Engine:
 
         :param seed: The seed to use for the random generation.
         """
-        # TODO: (drl_path_agent) Add a flag for AI simulations which want to have a constant seed
         self.reqs_dict = get_requests(seed=seed, engine_props=self.engine_props)
         self.reqs_dict = dict(sorted(self.reqs_dict.items()))
 
@@ -202,11 +201,12 @@ class Engine:
 
         return resp
 
-    def init_iter(self, iteration: int, print_flag: bool = True):
+    def init_iter(self, iteration: int, seed: int = None, print_flag: bool = True):
         """
         Initializes an iteration.
 
         :param iteration: The current iteration number.
+        :param seed: The seed to use for the random generation.
         :param print_flag: Flag to determine printing iter info.
         """
         self.iteration = iteration
@@ -228,16 +228,19 @@ class Engine:
             if self.engine_props['deploy_model']:
                 self.ml_model = load_model(engine_props=self.engine_props)
 
-        seed = self.engine_props["seeds"][iteration] if self.engine_props["seeds"] else iteration + 1
+        # You can pass a list of seeds, a constant seed, or default to iteration number
+        if seed is None:
+            seed = self.engine_props["seeds"][iteration] if self.engine_props["seeds"] else iteration + 1
+
         self.generate_requests(seed)
 
-    def run(self):
+    def run(self, seed: int = None):
         """
         Controls the Engine class methods.
         """
         self.create_topology()
         for iteration in range(self.engine_props["max_iters"]):
-            self.init_iter(iteration=iteration)
+            self.init_iter(iteration=iteration, seed=seed)
             req_num = 1
             for curr_time in self.reqs_dict:
                 self.handle_request(curr_time=curr_time, req_num=req_num)

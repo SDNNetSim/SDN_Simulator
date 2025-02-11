@@ -72,7 +72,7 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         else:
             print_flag = True
 
-        self._init_props_envs(print_flag=print_flag)
+        self._init_props_envs(seed=seed, print_flag=print_flag)
         if not self.sim_dict['is_training'] and self.iteration == 0:
             self._load_models()
         if seed is None:
@@ -92,9 +92,9 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
     def _load_models(self):
         self.setup_helper.load_models()
 
-    def _init_props_envs(self, print_flag: bool):
+    def _init_props_envs(self, seed: int, print_flag: bool):
         self.rl_props.arrival_count = 0
-        self.engine_obj.init_iter(iteration=self.iteration, print_flag=print_flag)
+        self.engine_obj.init_iter(seed=seed, iteration=self.iteration, print_flag=print_flag)
         self.engine_obj.create_topology()
         self.rl_help_obj.topology = self.engine_obj.topology
         self.rl_props.num_nodes = len(self.engine_obj.topology.nodes)
