@@ -39,22 +39,22 @@ class SimEnvUtils:
 
         return terminated
 
-    def handle_test_train_step(self, was_allocated: bool, path_length: int):
+    def handle_test_train_step(self, was_allocated: bool, path_length: int, trial: int):
         """
         Handles updates specific to training or testing during the current simulation step.
 
         :param was_allocated: Whether the resource allocation was successful.
+        :param trial: The current trial number.
         :param path_length: The length of the chosen path.
         """
         if self.sim_env.sim_dict['is_training']:
             if self.sim_env.sim_dict['path_algorithm'] in VALID_PATH_ALGORITHMS:
                 self.sim_env.path_agent.update(was_allocated=was_allocated,
                                                net_spec_dict=self.sim_env.engine_obj.net_spec_dict,
-                                               iteration=self.sim_env.iteration, path_length=path_length)
+                                               iteration=self.sim_env.iteration, path_length=path_length,
+                                               trial=trial)
             elif self.sim_env.sim_dict['core_algorithm'] in VALID_CORE_ALGORITHMS:
-                self.sim_env.core_agent.update(was_allocated=was_allocated,
-                                               net_spec_dict=self.sim_env.engine_obj.net_spec_dict,
-                                               iteration=self.sim_env.iteration)
+                raise NotImplementedError
             else:
                 raise NotImplementedError
         else:

@@ -47,13 +47,14 @@ class PathAgent(BaseAgent):
             self.hyperparam_obj.update_eps()
 
     def update(self, was_allocated: bool, net_spec_dict: dict, iteration: int,
-               path_length: int):  # pylint: disable=unused-argument
+               path_length: int, trial: int):  # pylint: disable=unused-argument
         """
         Makes updates to the agent for each time step.
 
         :param was_allocated: If the request was allocated.
         :param net_spec_dict: The current network spectrum database.
         :param path_length: Length of the path.
+        :param trial: The current trial.
         :param iteration: The current iteration.
         """
         if self.hyperparam_obj.iteration >= self.engine_props['max_iters']:
@@ -72,11 +73,13 @@ class PathAgent(BaseAgent):
         if self.algorithm == 'q_learning':
             self.algorithm_obj.learn_rate = self.hyperparam_obj.curr_alpha
             self.algorithm_obj.update_q_matrix(reward=reward, level_index=self.level_index, net_spec_dict=net_spec_dict,
-                                               flag='path')
+                                               flag='path', trial=trial)
         elif self.algorithm == 'epsilon_greedy_bandit':
-            self.algorithm_obj.update(reward=reward, arm=self.rl_props.chosen_path_index, iteration=iteration)
+            self.algorithm_obj.update(reward=reward, arm=self.rl_props.chosen_path_index, iteration=iteration,
+                                      trial=trial)
         elif self.algorithm == 'ucb_bandit':
-            self.algorithm_obj.update(reward=reward, arm=self.rl_props.chosen_path_index, iteration=iteration)
+            self.algorithm_obj.update(reward=reward, arm=self.rl_props.chosen_path_index, iteration=iteration,
+                                      trial=trial)
         # StableBaselines3 will handle all algorithm updates
         elif self.algorithm in VALID_DRL_ALGORITHMS:
             pass

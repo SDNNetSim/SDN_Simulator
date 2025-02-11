@@ -94,7 +94,7 @@ class QLearning:
 
         return max_index, max_obj
 
-    def update_q_matrix(self, reward, level_index, net_spec_dict, flag, core_index=None):
+    def update_q_matrix(self, reward, level_index, net_spec_dict, flag, trial: int, core_index=None):
         """Updates Q-values for either path or core selection."""
         matrix = self.props.cores_matrix if flag == 'core' else self.props.routes_matrix
         matrix = matrix[self.rl_props.source, self.rl_props.destination]
@@ -108,10 +108,10 @@ class QLearning:
         td_error = current_q - delta
         new_q = ((1 - self.learn_rate) * current_q) + (self.learn_rate * delta)
 
-        self.update_q_stats(reward, td_error, 'cores_dict' if flag == 'core' else 'routes_dict')
+        self.update_q_stats(reward, td_error, 'cores_dict' if flag == 'core' else 'routes_dict', trial=trial)
         matrix[core_index if flag == 'core' else level_index]['q_value'] = new_q
 
-    def update_q_stats(self, reward, td_error, stats_flag):
+    def update_q_stats(self, reward, td_error, stats_flag, trial: int):
         """Updates statistics related to Q-learning performance."""
         if self.completed_sim:
             return
@@ -124,17 +124,17 @@ class QLearning:
             self.props.rewards_dict[stats_flag]['rewards'][episode].append(reward)
             self.props.errors_dict[stats_flag]['errors'][episode].append(td_error)
 
-        self._calc_q_averages(stats_flag, episode)
+        self._calc_q_averages(stats_flag, episode, trial=trial)
 
-    def _calc_q_averages(self, stats_flag, episode):
+    def _calc_q_averages(self, stats_flag, episode, trial: int):
         """Calculates averages for rewards and errors at the end of an episode."""
         if len(self.props.rewards_dict[stats_flag]['rewards'][episode]) == self.engine_props['num_requests']:
             self.completed_sim = True
             self.props.rewards_dict[stats_flag] = calc_matrix_stats(self.props.rewards_dict[stats_flag]['rewards'])
             self.props.errors_dict[stats_flag] = calc_matrix_stats(self.props.errors_dict[stats_flag]['errors'])
-            self.save_model()
+            self.save_model(trial=trial)
 
-    def save_model(self):
+    def save_model(self, trial: int):
         """Saves the Q-learning model."""
         save_dir = os.path.join('logs', 'q_learning', self.engine_props['network'], self.engine_props['date'],
                                 self.engine_props['sim_start'])
@@ -142,7 +142,7 @@ class QLearning:
 
         erlang = self.engine_props['erlang']
         cores_per_link = self.engine_props['cores_per_link']
-        filename = f"e{erlang}_{'routes' if self.engine_props['path_algorithm'] == 'q_learning' else 'cores'}_c{cores_per_link}.npy"
+        filename = f"e{erlang}_{'routes' if self.engine_props['path_algorithm'] == 'q_learning' else 'cores'}_c{cores_per_link}_t{trial}.npy"
         save_path = os.path.join(save_dir, filename)
         np.save(save_path, self.props.routes_matrix if 'routes' in filename else self.props.cores_matrix)
         self._save_params(save_dir)

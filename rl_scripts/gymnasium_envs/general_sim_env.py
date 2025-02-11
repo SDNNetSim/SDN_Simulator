@@ -28,6 +28,7 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         self.rl_props.super_channel_space = self.sim_dict['super_channel_space']
 
         self.iteration = 0
+        self.trial = None
         self.options = None
         self.optimize = None
         self.callback = custom_callback
@@ -62,6 +63,7 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
         :rtype: tuple
         """
         super().reset(seed=seed)
+        self.trial = seed
         self.rl_props.arrival_list = list()
         self.rl_props.depart_list = list()
 
@@ -125,7 +127,8 @@ class SimEnv(gym.Env):  # pylint: disable=abstract-method
 
         was_allocated = req_id in reqs_status_dict
         path_length = self.route_obj.route_props.weights_list[0]
-        self.step_helper.handle_test_train_step(was_allocated=was_allocated, path_length=path_length)
+        self.step_helper.handle_test_train_step(was_allocated=was_allocated, path_length=path_length,
+                                                trial=self.trial)
         self.rl_help_obj.update_snapshots()
 
         if was_allocated:
