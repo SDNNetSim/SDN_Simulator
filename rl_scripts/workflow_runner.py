@@ -74,7 +74,8 @@ def run_iters(env: object, sim_dict: dict, is_training: bool, drl_agent: bool, m
                 completed_trials += 1
                 completed_episodes = 0
                 print(f"{completed_trials} trials completed out of {sim_dict['n_trials']}.")
-                obs, _ = env.reset(seed=completed_trials)
+
+            obs, _ = env.reset(seed=completed_trials)
 
     if not (is_training and drl_agent):
         means_arr = np.mean(rewards_matrix, axis=0)
