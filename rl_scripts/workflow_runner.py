@@ -41,13 +41,11 @@ def run_iters(env: object, sim_dict: dict, is_training: bool, drl_agent: bool, m
     """
     completed_episodes = 0
     obs, _ = env.reset()
-    completed_trials = 0
-    total_trials = sim_dict['n_trials']
-    rewards_matrix = np.zeros((sim_dict['n_trials'], sim_dict['max_iters']))
+    rewards_matrix = np.zeros((sim_dict['max_iters'], sim_dict['num_requests']))
     episodic_reward = 0
-    episodic_rew_arr = np.zeros((sim_dict['max_iters']))
+    episodic_rew_arr = np.array([])
 
-    while completed_trials < total_trials:
+    while completed_episodes <= (sim_dict['max_iters']) - 1:
         if is_training:
             if drl_agent:
                 _run_drl_training(env=env, sim_dict=sim_dict)
@@ -60,17 +58,16 @@ def run_iters(env: object, sim_dict: dict, is_training: bool, drl_agent: bool, m
             obs, reward, is_terminated, is_truncated, _ = env.step(action)
 
         episodic_reward += reward
-        if completed_episodes >= sim_dict['max_iters']:
-            rewards_matrix[completed_trials] = episodic_rew_arr
-            completed_trials += 1
-            completed_episodes = 0
-            print(f'{completed_trials} trials completed out of {sim_dict["n_trials"]}.')
+        episodic_rew_arr = np.append(episodic_rew_arr, episodic_reward)
 
         if is_terminated or is_truncated:
             obs, _ = env.reset()
-            episodic_rew_arr[completed_episodes] = episodic_reward
+            rewards_matrix[completed_episodes] = episodic_rew_arr
+
             episodic_reward = 0
+            episodic_rew_arr = np.array([])
             completed_episodes += 1
+
             print(f'{completed_episodes} episodes completed out of {sim_dict["max_iters"]}.')
 
     means_arr = np.mean(rewards_matrix, axis=0)
