@@ -39,9 +39,9 @@ def _save_model(state_values_dict: dict, erlang: float, cores_per_link: int, sav
     state_values_dict = {str(key): value.tolist() for key, value in state_values_dict.items()}
 
     if is_path:
-        state_vals_fp = f"state_vals_e{erlang}_routes_c{cores_per_link}_t{trial}.json"
+        state_vals_fp = f"state_vals_e{erlang}_routes_c{cores_per_link}_t{trial + 1}.json"
     else:
-        state_vals_fp = f"state_vals_e{erlang}_cores_c{cores_per_link}.json"
+        raise NotImplementedError
     save_fp = os.path.join(os.getcwd(), save_dir, state_vals_fp)
     with open(save_fp, 'w', encoding='utf-8') as file_obj:
         json.dump(state_values_dict, file_obj)
@@ -73,7 +73,7 @@ def save_model(iteration: int, algorithm: str, self: object, trial: int):
         cores_per_link = self.engine_props['cores_per_link']
         base_fp = _get_base_fp(is_path=self.is_path, erlang=erlang, cores_per_link=cores_per_link)
 
-        rewards_fp = f'rewards_{base_fp}_t{trial}_iter_{iteration}.npy'
+        rewards_fp = f'rewards_{base_fp}_t{trial + 1}_iter_{iteration}.npy'
         save_fp = os.path.join(os.getcwd(), save_dir, rewards_fp)
         np.save(save_fp, rewards_arr)
 

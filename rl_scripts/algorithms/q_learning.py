@@ -142,7 +142,7 @@ class QLearning:
 
         erlang = self.engine_props['erlang']
         cores_per_link = self.engine_props['cores_per_link']
-        filename = f"e{erlang}_{'routes' if self.engine_props['path_algorithm'] == 'q_learning' else 'cores'}_c{cores_per_link}_t{trial}.npy"
+        filename = f"e{erlang}_{'routes' if self.engine_props['path_algorithm'] == 'q_learning' else 'cores'}_c{cores_per_link}_t{trial + 1}.npy"
         save_path = os.path.join(save_dir, filename)
         np.save(save_path, self.props.routes_matrix if 'routes' in filename else self.props.cores_matrix)
         self._save_params(save_dir)

@@ -6,6 +6,7 @@ from rl_scripts.utils.gym_env_util import create_environment
 # TODO: (drl_path_agents) Put 'utils' file ending (imports) in the standards and guidelines
 # TODO: (drl_path_agents) No support for core or spectrum assignment
 # TODO: (drl_path_agents) Does not support multi-band
+# TODO: (drl_path_agents) Q-Learning does not save iteratively
 
 def run_rl_sim():
     """

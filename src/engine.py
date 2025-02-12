@@ -201,14 +201,18 @@ class Engine:
 
         return resp
 
-    def init_iter(self, iteration: int, seed: int = None, print_flag: bool = True):
+    def init_iter(self, iteration: int, seed: int = None, print_flag: bool = True, trial: int = None):
         """
         Initializes an iteration.
 
         :param iteration: The current iteration number.
         :param seed: The seed to use for the random generation.
+        :param trial: The trial number.
         :param print_flag: Flag to determine printing iter info.
         """
+        if trial is not None:
+            self.engine_props['thread_num'] = f's{trial + 1}'
+
         self.iteration = iteration
 
         self.stats_obj.iteration = iteration
