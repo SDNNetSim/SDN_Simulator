@@ -81,6 +81,10 @@ def run_iters(env: object, sim_dict: dict, is_training: bool, drl_agent: bool, m
         means_arr = np.mean(rewards_matrix, axis=0)
         save_arr(arr=means_arr, sim_dict=sim_dict, file_name="average_rewards.npy")
 
+        return np.sum(means_arr)
+
+    return None
+
 
 def run_testing(env: object, sim_dict: dict):
     """
@@ -107,12 +111,14 @@ def run(env: object, sim_dict: dict):
     if sim_dict['is_training']:
         # Print info function should already error check valid input, no need to raise an error here
         if sim_dict['path_algorithm'] in VALID_PATH_ALGORITHMS or sim_dict['core_algorithm'] in VALID_CORE_ALGORITHMS:
-            run_iters(env=env, sim_dict=sim_dict, is_training=True,
-                      drl_agent=sim_dict['path_algorithm'] in VALID_DRL_ALGORITHMS)
+            sum_returns = run_iters(env=env, sim_dict=sim_dict, is_training=True,
+                                    drl_agent=sim_dict['path_algorithm'] in VALID_DRL_ALGORITHMS)
         else:
             raise NotImplementedError
     else:
-        run_testing(sim_dict=sim_dict, env=env)
+        sum_returns = run_testing(sim_dict=sim_dict, env=env)
+
+    return sum_returns
 
 
 def run_optuna_study(env, sim_dict):

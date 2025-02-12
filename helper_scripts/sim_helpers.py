@@ -621,8 +621,7 @@ def run_simulation_for_erlangs(env, erlang_list: list, sim_dict: dict, run_func)
         env.engine_obj.engine_props['erlang'] = erlang
         env.engine_obj.engine_props['arrival_rate'] = sim_dict['cores_per_link'] * erlang
         env.engine_obj.engine_props['arrival_rate'] /= sim_dict['holding_time']
-        run_func(env=env, sim_dict=env.sim_dict)
-        sum_returns = np.sum(env.path_agent.reward_penalty_list)
+        sum_returns = run_func(env=env, sim_dict=env.sim_dict)
         total_rewards.append(sum_returns)
 
     return np.mean(total_rewards)
