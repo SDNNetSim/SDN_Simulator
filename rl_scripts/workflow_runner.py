@@ -73,6 +73,12 @@ def run_iters(env: object, sim_dict: dict, is_training: bool, drl_agent: bool, m
 
                 completed_trials += 1
                 completed_episodes = 0
+
+                # Let Optuna handle trials; reset environment for reproducibility and exit after one trial.
+                if sim_dict['optimize_hyperparameters']:
+                    obs, _ = env.reset(seed=completed_trials)
+                    break
+
                 print(f"{completed_trials} trials completed out of {sim_dict['n_trials']}.")
 
             obs, _ = env.reset(seed=completed_trials)

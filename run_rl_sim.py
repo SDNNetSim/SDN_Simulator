@@ -7,6 +7,7 @@ from rl_scripts.utils.gym_env_util import create_environment
 # TODO: (drl_path_agents) No support for core or spectrum assignment
 # TODO: (drl_path_agents) Does not support multi-band
 # TODO: (drl_path_agents) Q-Learning does not save iteratively
+# TODO: (drl_path_agents) Create run mods directory and raise an error if it doesn't exist
 
 def run_rl_sim():
     """
