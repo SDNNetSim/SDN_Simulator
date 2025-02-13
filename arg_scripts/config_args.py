@@ -43,6 +43,7 @@ SIM_REQUIRED_OPTIONS = {
         'const_link_weight': str_to_bool,
         'is_only_core_node': str_to_bool,
         'multi_fiber': str_to_bool,
+        'multi_source_multi_destination': str_to_bool, # new variable in config file to enable the use of multi source or multi destination routing.
     },
     'spectrum_settings': {
         'c_band': int,
@@ -214,6 +215,10 @@ COMMAND_LINE_PARAMS = [
     ['spectrum_priority', str, ''],
     ['save_step', int, ''],
     ['save_start_end_slots', bool, ''],
+    ['num_sources', int, ''],       #the number of sources specified in MSMD (multi source multi destination) routing
+    ['num_destinations', int, ''],  #the number of destinations specified in MSMD routing
+
+
 
     # StableBaselines3 arguments
     ['algo', str, ''],
