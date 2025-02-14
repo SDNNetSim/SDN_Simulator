@@ -188,7 +188,7 @@ class SDNController:
         while remaining_bw > 0:
             if self.engine_props['fixed_grid']:
                 self.sdn_props.was_routed = True
-                mod_format, bw = self.spectrum_obj.get_spectrum_dynamic_slicing(mod_format_list = [], path_index = path_index)
+                mod_format, bw = self.spectrum_obj.get_spectrum_dynamic_slicing(mod_format_dict = {}, path_index = path_index)
                 if self.spectrum_obj.spectrum_props.is_free:
                     lp_id = self.sdn_props.get_lightpath_id()
                     self.spectrum_obj.spectrum_props.lightpath_id = lp_id
