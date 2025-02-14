@@ -96,6 +96,7 @@ OTHER_OPTIONS = {
     'rl_settings': {
         'device': str,
         'optimize': str_to_bool,
+        'optuna_trials': int,
         'optimize_hyperparameters': str_to_bool,
         'is_training': str_to_bool,
         'path_algorithm': str,
@@ -138,6 +139,7 @@ COMMAND_LINE_PARAMS = [
     ['erlang_step', float, ''],
     ['mod_assumption', str, ''],
     ['n_trials', str, ''],
+    ['optuna_trials', int, ''],
     ['mod_assumption_path', str, ''],
     ['epsilon_start', float, ''],
     ['epsilon_end', float, ''],

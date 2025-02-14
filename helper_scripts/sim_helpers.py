@@ -657,15 +657,17 @@ def save_study_results(study, env, study_name: str, best_params: dict, best_rewa
 
 
 # TODO: Only support for one process
-def modify_multiple_json_values(file_path: str, update_list: list):
+def modify_multiple_json_values(trial_num: int, file_path: str, update_list: list):
     """
     Opens a JSON file, modifies multiple key-value pairs in a dictionary, and saves it back to the file.
 
+    :param trial_num: The trial number.
     :param file_path: The path to the JSON file.
     :param update_list: A list of tuples containing keys and their new values to be updated.
                         Example: [('key1', 'new_value1'), ('key2', 'new_value2')]
     """
-    with open(file_path, 'r', encoding='utf-8') as json_file:
+    open_fp = os.path.join(file_path, 'sim_input_s1.json')
+    with open(open_fp, 'r', encoding='utf-8') as json_file:
         data = json.load(json_file)
 
     for key, new_value in update_list:
@@ -674,5 +676,19 @@ def modify_multiple_json_values(file_path: str, update_list: list):
         else:
             raise KeyError(f"Key '{key}' not found in the JSON file.")
 
-    with open(file_path, 'w', encoding='utf-8') as json_file:
+    save_fp = os.path.join(file_path, f'sim_input_s{trial_num + 1}.json')
+    with open(save_fp, 'w', encoding='utf-8') as json_file:
         json.dump(data, json_file, indent=4)
+
+
+def update_dict_from_list(input_dict: dict, updates_list: list):
+    """
+    Updates the input dictionary with values from the updates list. The keys are derived from the tuples in the list.
+
+    :param input_dict: Dictionary to be updated.
+    :param updates_list: List of tuples, each containing (key, value).
+    """
+    for key, value in updates_list:
+        input_dict[key] = value
+
+    return input_dict

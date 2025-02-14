@@ -3,7 +3,7 @@ import os
 import optuna
 import numpy as np
 
-from helper_scripts.sim_helpers import modify_multiple_json_values
+from helper_scripts.sim_helpers import modify_multiple_json_values, update_dict_from_list
 from helper_scripts.sim_helpers import get_erlang_vals, run_simulation_for_erlangs, save_study_results
 from rl_scripts.helpers.rl_zoo_helpers import run_rl_zoo
 from rl_scripts.helpers.setup_helpers import print_info
@@ -29,6 +29,7 @@ def _run_drl_training(env: object, sim_dict: dict):
         save_model(sim_dict=sim_dict, env=env, model=model)
 
 
+# TODO: (drl_path_agents) Break this function up for organizational purposes
 def run_iters(env: object, sim_dict: dict, is_training: bool, drl_agent: bool, model=None):
     """
     Runs the specified number of episodes in the reinforcement learning environment.
@@ -44,6 +45,7 @@ def run_iters(env: object, sim_dict: dict, is_training: bool, drl_agent: bool, m
     episodic_reward = 0
     rewards_matrix = np.zeros((sim_dict['n_trials'], sim_dict['max_iters']))
     episodic_rew_arr = np.array([])
+
     obs, _ = env.reset(seed=completed_trials)
 
     while completed_trials < sim_dict['n_trials']:
@@ -63,6 +65,7 @@ def run_iters(env: object, sim_dict: dict, is_training: bool, drl_agent: bool, m
             episodic_rew_arr = np.append(episodic_rew_arr, episodic_reward)
             episodic_reward = 0
             completed_episodes += 1
+
             print(f"{completed_episodes} episodes completed out of {sim_dict['max_iters']}.")
 
             if completed_episodes == sim_dict['max_iters']:
@@ -73,23 +76,18 @@ def run_iters(env: object, sim_dict: dict, is_training: bool, drl_agent: bool, m
 
                 completed_trials += 1
                 completed_episodes = 0
-
-                # Let Optuna handle trials; reset environment for reproducibility and exit after one trial.
-                if sim_dict['optimize_hyperparameters']:
-                    obs, _ = env.reset(seed=completed_trials)
-                    break
-
                 print(f"{completed_trials} trials completed out of {sim_dict['n_trials']}.")
 
             obs, _ = env.reset(seed=completed_trials)
 
     if not (is_training and drl_agent):
         means_arr = np.mean(rewards_matrix, axis=0)
+        cum_reward = np.sum(means_arr)
         save_arr(arr=means_arr, sim_dict=sim_dict, file_name="average_rewards.npy")
 
-        return np.sum(means_arr)
+        return cum_reward
 
-    return None
+    raise NotImplementedError
 
 
 def run_testing(env: object, sim_dict: dict):
@@ -130,27 +128,32 @@ def run(env: object, sim_dict: dict):
 def run_optuna_study(env, sim_dict):
     """
     Runs Optuna study for hyperparameter optimization.
-
-    :param env: Initialized simulation environment.
-    :param sim_dict: The simulation configuration dictionary.
+    
+    :param env: The reinforcement learning environment.
+    :param sim_dict: The simulation configuration dictionary containing paths, algorithms, and statistical parameters.
     """
 
     # Define the Optuna objective function
     def objective(trial: optuna.Trial):
         hyperparam_dict = get_optuna_hyperparams(sim_dict=sim_dict, trial=trial)
         update_list = [(param, value) for param, value in hyperparam_dict.items() if param in sim_dict]
-        file_path = os.path.join('data', 'input', sim_dict['network'], sim_dict['date'],
-                                 sim_dict['sim_start'], 'sim_input_s1.json')
-        modify_multiple_json_values(file_path=file_path, update_list=update_list)
+
+        modify_multiple_json_values(trial_num=trial.number, file_path=file_path, update_list=update_list)
+        env.sim_dict = update_dict_from_list(input_dict=env.sim_dict, updates_list=update_list)
+
         erlang_list = get_erlang_vals(sim_dict=sim_dict)
         mean_reward = run_simulation_for_erlangs(env=env, erlang_list=erlang_list, sim_dict=sim_dict, run_func=run)
+        mean_reward = mean_reward / sim_dict['n_trials'] / sim_dict['max_iters']
+
         trial.set_user_attr("sim_start_time", sim_dict['sim_start'])
         return mean_reward
 
     # Run the optimization
     study_name = "hyperparam_study.pkl"
+    file_path = os.path.join('data', 'input', sim_dict['network'], sim_dict['date'],
+                             sim_dict['sim_start'])
     study = optuna.create_study(direction='maximize', study_name=study_name)
-    n_trials = sim_dict['n_trials']
+    n_trials = sim_dict['optuna_trials']
     study.optimize(objective, n_trials=n_trials)
 
     # Save study results
