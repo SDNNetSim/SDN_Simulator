@@ -232,9 +232,10 @@ class UCBBandit:
         if 0 in self.counts[state_action_pair]:
             return np.argmin(self.counts[state_action_pair])
 
+        conf_param = self.engine_props['conf_param']
         total_counts = sum(self.counts[state_action_pair])
         ucb_values = self.values[state_action_pair] + \
-                     np.sqrt(2 * np.log(total_counts) / self.counts[state_action_pair])
+                     np.sqrt(conf_param * np.log(total_counts) / self.counts[state_action_pair])
         return np.argmax(ucb_values)
 
     def select_path_arm(self, source: int, dest: int):

@@ -32,7 +32,8 @@ class PathAgent(BaseAgent):
             if 'bandit' not in self.engine_props['path_algorithm']:
                 self.hyperparam_obj.update_alpha()
         if self.hyperparam_obj.epsilon_strategy in EPISODIC_STRATEGIES:
-            self.hyperparam_obj.update_eps()
+            if 'ucb' not in self.engine_props['path_algorithm']:
+                self.hyperparam_obj.update_eps()
 
     def _handle_hyperparams(self):
         if not self.hyperparam_obj.fully_episodic:

@@ -89,7 +89,7 @@ def run_iters(env: object, sim_dict: dict, is_training: bool, drl_agent: bool, m
 
         return cum_reward
 
-    raise NotImplementedError
+    return None
 
 
 def run_testing(env: object, sim_dict: dict):

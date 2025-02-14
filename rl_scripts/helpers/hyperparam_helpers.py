@@ -195,7 +195,6 @@ class HyperparamConfig:  # pylint: disable=too-few-public-methods
         self.counts, self.values = get_q_table(self=self)
 
 
-# TODO: (drl_path_agents) UCB Bandit 'c' variable is a constant
 def get_optuna_hyperparams(sim_dict: dict, trial: optuna.trial):
     """
     Suggests hyperparameters for the Optuna trial.
@@ -209,15 +208,21 @@ def get_optuna_hyperparams(sim_dict: dict, trial: optuna.trial):
     else:
         resp_dict['alpha_start'], resp_dict['alpha_end'] = None, None
 
-    resp_dict['epsilon_start'] = trial.suggest_float('epsilon_start', low=0.01, high=0.5, log=False, step=0.01)
-    resp_dict['epsilon_end'] = trial.suggest_float('epsilon_end', low=0.01, high=0.1, log=False, step=0.01)
+    if 'ucb' in sim_dict['path_algorithm']:
+        resp_dict['conf_param'] = trial.suggest_float('conf_param (c)', low=1.0, high=5.0, log=False, step=0.01)
+        resp_dict['epsilon_start'] = None
+        resp_dict['epsilon_end'] = None
+    else:
+        resp_dict['epsilon_start'] = trial.suggest_float('epsilon_start', low=0.01, high=0.5, log=False, step=0.01)
+        resp_dict['epsilon_end'] = trial.suggest_float('epsilon_end', low=0.01, high=0.1, log=False, step=0.01)
 
     if 'q_learning' in (sim_dict['path_algorithm']):
         resp_dict['discount_factor'] = trial.suggest_float('discount_factor', low=0.8, high=1.0, step=0.01)
     else:
         resp_dict['discount_factor'] = None
 
-    if 'exp_decay' in (sim_dict['epsilon_update'], sim_dict['alpha_update']):
+    if ('exp_decay' in (sim_dict['epsilon_update'], sim_dict['alpha_update']) and
+            'ucb' not in sim_dict['path_algorithm']):
         resp_dict['decay_rate'] = trial.suggest_float('decay_rate', low=0.1, high=0.5, step=0.01)
     else:
         resp_dict['decay_rate'] = None
