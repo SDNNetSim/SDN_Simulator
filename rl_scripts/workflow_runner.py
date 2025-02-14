@@ -6,7 +6,9 @@ import numpy as np
 from helper_scripts.sim_helpers import modify_multiple_json_values, update_dict_from_list
 from helper_scripts.sim_helpers import get_erlang_vals, run_simulation_for_erlangs, save_study_results
 from rl_scripts.helpers.rl_zoo_helpers import run_rl_zoo
-from rl_scripts.helpers.setup_helpers import print_info
+from rl_scripts.gymnasium_envs.general_sim_env import SimEnv
+from rl_scripts.helpers.setup_helpers import print_info, setup_rl_sim
+from rl_scripts.helpers.callback_helpers import GetModelParams
 from rl_scripts.model_manager import get_trained_model, get_model, save_model
 
 from rl_scripts.helpers.hyperparam_helpers import get_optuna_hyperparams
@@ -125,7 +127,7 @@ def run(env: object, sim_dict: dict):
     return sum_returns
 
 
-def run_optuna_study(env, sim_dict):
+def run_optuna_study(sim_dict):
     """
     Runs Optuna study for hyperparameter optimization.
     
@@ -135,6 +137,10 @@ def run_optuna_study(env, sim_dict):
 
     # Define the Optuna objective function
     def objective(trial: optuna.Trial):
+        callback = GetModelParams()
+        env = SimEnv(render_mode=None, custom_callback=callback, sim_dict=setup_rl_sim())
+        env.sim_dict['callback'] = callback
+
         hyperparam_dict = get_optuna_hyperparams(sim_dict=sim_dict, trial=trial)
         update_list = [(param, value) for param, value in hyperparam_dict.items() if param in sim_dict]
 
@@ -146,6 +152,7 @@ def run_optuna_study(env, sim_dict):
         mean_reward = mean_reward / sim_dict['n_trials'] / sim_dict['max_iters']
 
         trial.set_user_attr("sim_start_time", sim_dict['sim_start'])
+        trial.set_user_attr("env", env)
         return mean_reward
 
     # Run the optimization
@@ -160,9 +167,9 @@ def run_optuna_study(env, sim_dict):
     best_trial = study.best_trial
     save_study_results(  # pylint: disable=unexpected-keyword-arg, no-value-for-parameter
         study=study,
-        env=env,
+        env=best_trial.user_attrs.get("env"),
         study_name=study_name,
         best_params=best_trial.params,
         best_reward=best_trial.value,
-        best_start_time=best_trial.user_attrs.get("sim_start_time")
+        best_sim_start=best_trial.user_attrs.get("sim_start_time"),
     )

@@ -22,7 +22,7 @@ def run_rl_sim():
         if sim_dict['path_algorithm'] in ALGORITHM_REGISTRY:
             run(env=env, sim_dict=sim_dict)
         else:
-            run_optuna_study(env=env, sim_dict=sim_dict)
+            run_optuna_study(sim_dict=sim_dict)
 
 
 if __name__ == '__main__':

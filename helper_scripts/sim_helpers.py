@@ -627,7 +627,7 @@ def run_simulation_for_erlangs(env, erlang_list: list, sim_dict: dict, run_func)
     return np.mean(total_rewards)
 
 
-def save_study_results(study, env, study_name: str, best_params: dict, best_reward: float, best_start_time: str):
+def save_study_results(study, env, study_name: str, best_params: dict, best_reward: float, best_sim_start: int):
     """
     Save the results of the study, including the best hyperparameters and the best reward value.
 
@@ -636,7 +636,7 @@ def save_study_results(study, env, study_name: str, best_params: dict, best_rewa
     :param study_name: The name of the study file to save.
     :param best_params: The best hyperparameters found by Optuna.
     :param best_reward: The best reward value from the study.
-    :param best_start_time: Start time of the best simulation run.
+    :param best_sim_start: The start time of the best simulation.
     """
     date_time = os.path.join(env.engine_obj.engine_props['network'], env.engine_obj.engine_props['date'],
                              env.engine_obj.engine_props['sim_start'])
@@ -653,7 +653,7 @@ def save_study_results(study, env, study_name: str, best_params: dict, best_rewa
         for key, value in best_params.items():
             file_path.write(f"{key}: {value}\n")
         file_path.write(f"\nBest Trial Reward: {best_reward}\n")
-        file_path.write(f"\nBest Trial Start Time: {best_start_time}\n")
+        file_path.write(f"\nBest Simulation Start Time: {best_sim_start}\n")
 
 
 # TODO: Only support for one process
